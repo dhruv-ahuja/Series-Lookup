@@ -13,4 +13,5 @@ You can search for your shows of choice whose data is scraped through IMDb initi
 ![image](https://user-images.githubusercontent.com/83733638/126065922-9f7ebfef-2065-42a2-99dc-f08f0c4c76f3.png)
  View the stored data in a neat table format.
  
- 
+![image](https://user-images.githubusercontent.com/83733638/126066049-a5c21021-6d0e-4657-9ce9-f86e17398d29.png)
+Receive toast notifications after checking for updates. 
