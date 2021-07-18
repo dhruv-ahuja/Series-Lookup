@@ -7,10 +7,10 @@ This is my first ever individual project and I wanted to make something which I 
 It took me ~3 weeks to code the app to the point where I would consider it useful and I'm sure there are still some bugs I may have missed. 
 
 #Functionalities
-![image](https://user-images.githubusercontent.com/83733638/126065103-be2a0345-6b41-4dbe-a370-94b6cab94c29.png)
+![image](https://user-images.githubusercontent.com/83733638/126065913-49145d97-fea4-4dd9-9b71-7e2e400dcb43.png)
 You can search for your shows of choice whose data is scraped through IMDb initially and add the show to a local database(.txt file).
 
-![image](https://user-images.githubusercontent.com/83733638/126065132-f196fe8b-40b6-4caf-866d-783f3b443212.png)
+![image](https://user-images.githubusercontent.com/83733638/126065922-9f7ebfef-2065-42a2-99dc-f08f0c4c76f3.png)
  View the stored data in a neat table format.
  
  
