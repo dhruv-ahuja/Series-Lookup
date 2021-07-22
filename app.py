@@ -29,6 +29,7 @@ class app:
         print(f'You have entered {usr_input}. Now scouring our online databases.')
         return self.show_search
         
+        
     def results(self, show_search):
         
         print("Showing the most relevant results:")
@@ -44,14 +45,14 @@ class app:
                 
                 print(f'{count}. {series}, {series["year"]}')
                 count += 1
+            
                     
     
-    
-    def choose(self):
-        self.results()
+    def choose(self, show_search):
+        
         select1 = int(input('Select your show from the list, enter a number from 1 to 4 or press 0 to go back to main screen: '))
         
-        ent = self.show_search
+        ent = show_search
         
         if 1 <= select1 < 4:
             
@@ -60,39 +61,31 @@ class app:
             }
         
             selection = num_map[select1]
-            self.seriesID = selection.movieID
-            self.year = selection['year']
+            seriesID = selection.movieID
+            year = selection['year']
         
-            print(f"You've chosen {selection}, {self.year}")
-            
-            self.selection = selection
+            print(f"You've chosen {selection}, {year}")
             return selection
-            
             
         elif select1 == 0:
             print('Returning you back to the main dialogue.')
-            
-            return self.ask_save()
-    
-    def getselection(self):
-        return self.choose()
-    
-        
-        
+            print()
+            print()
+            return False
+
 class webscraper(app):
     def __init__(self):
         app.__init__(self)
         
         
-    
-    def get_seasons(self):
+    def get_seasons(self, show_name):
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument('--headless')
         chrome_options.add_argument('log-level=2')
         
         driver = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_options)
         
-        query = f'Peaky Blinders Netflix'
+        query = f'{show_name} Netflix'
         links = []
         url =  f"http:\\google.com/search?q={query}&start="
         driver.get(url)
@@ -101,9 +94,8 @@ class webscraper(app):
         search = soup.find_all('div', class_ = 'yuRUbf')
         for h in search:
             links.append(h.a.get('href'))
-        
+
         show_url = links[0]
-        
         driver.get(show_url)
         soup = BeautifulSoup(driver.page_source, 'lxml')
         search2 = soup.find_all('span',attrs={'class' : 'test_dur_str'})
@@ -115,7 +107,7 @@ class webscraper(app):
         parsed = [int(str(i.strip())) for i in parsed]
         self.season_count = season_count = parsed[0]
         
-        # print(f'Number of seasons: {season_count} of show: {self.getselection()}') 
+        print(f'Number of seasons: {season_count} of show: {show_name}') 
         return season_count
 
 
@@ -195,14 +187,22 @@ def main():
     if launch == '1':
         show_search = app().ask_input()
         results = app().results(show_search)
+        user_choice = app().choose(show_search)
+        if user_choice == False:
+            launch
+        else:
+            get_seasons = webscraper().get_seasons(user_choice)
+        
     
     elif launch == '2':
         show_db = table().show_db()
         system('pause')
-        write_data = app().ask_save()
+        print()
+        # write_data = app().ask_save()
+        launch
     
     elif launch == '3':
-        get_updates = webscraper().get_seasons()
+        pass
     
     elif launch == 'quit':
         sys.exit()
