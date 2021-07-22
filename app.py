@@ -7,7 +7,6 @@ from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
 from tabulate import tabulate
 
-#xpath for rotten tomatoes /html/body/div[4]/div[3]/div[5]/section[4]/div
 
 ia = IMDb()
 
@@ -41,7 +40,6 @@ class search:
             self.welcome()
     
         
-        
     def ask_input(self):
         self.welcome()
         
@@ -70,12 +68,7 @@ class search:
                 
                 print(f'{count}. {series}, {series["year"]}')
                 count += 1
-                    
-        
-                    
-                
-        
-                
+                      
     
     
     def choose(self):
@@ -196,19 +189,7 @@ class search:
             return sys.exit()
     
     
-    #practicing calling a class method from another class
-    # def sup(self):
-    #     a = table().func()
-    #     return a
-
-
-
 class table(search):
-    
-    # def func(self):
-    #     print('Hello')
-    
-    
     
     def show_db(self):
         #making line_count to get the number of shows stored in text file
@@ -240,20 +221,16 @@ class table(search):
             if entry not in series_l:
                 series_l.append(entry)
             
-            
-        # series_db = pandas.DataFrame(series_l, columns = ['Series Name' , 'Season Count'], index = [i for i in range(1, line_count + 1)])
-        
+
         #using tabulate cause it's easy and pretty!
-        series_db = tabulate(series_l, headers=['S.no.', 'Show Name' , 'Season Count'], tablefmt='fancy_grid', showindex=[i for i in range(1, line_count+1)])
+        series_db = tabulate(series_l, headers=['S.no.', 'Show Name' , 'Season Count'], tablefmt='fancy_grid', showindex=range(1, line_count+1))
         
         
-        # series_db = series_db.rename()
         return series_db
                     
 
    
 if __name__ == '__main__':
     search().ask_save()
-    # close = input('Press ENTER to exit')
 
-# print(search().ask_save())
+
