@@ -155,15 +155,15 @@ class search:
               
         for res in search:
             parsed.append(res.text[:2])
+            print(res.text)
         
         parsed = [i.strip() for i in parsed]
         parsed = [int(i) for i in parsed]
         
+        self.season_count = season_count = int()
         for i in parsed:
             season_count = i
             break
-        
-        self.season_count = season_count
         
         print(f'Number of seasons: {season_count} of show: {self.selection}') 
         
