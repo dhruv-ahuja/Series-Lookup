@@ -74,10 +74,7 @@ class app:
             return False
 
 
-class webscraper(app):
-    def __init__(self):
-        app.__init__(self)
-        
+class webscraper:
         
     def get_seasons(self, show_name):
         chrome_options = webdriver.ChromeOptions()
@@ -120,7 +117,7 @@ class webscraper(app):
     
     def write2db(self, show_name, season_count):
         filename = 'serie_db.csv'
-        #initializing the titles(will eliminate the need to make rows in the table module BUT we don't need it as it would probably be created each time we run the program and we don't want that):
+        #initializing the titles:
         fields= ['Show Name', 'Seasons']
         show_info = [show_name, season_count]
         #check to confirm if fields has already been written to the csv file, meaning we have already input data in the csv file earlier
@@ -149,45 +146,33 @@ class webscraper(app):
         print()
             
 
-
 class table:
     
-    def show_db(self):
-        #making line_count to get the number of shows stored in text file
-        line_count = 0
-    
-        with open('serie_db.txt') as file:
-            series_list = {}
-            
-            for line in file:
-                showID = ''
-                line_data = line.split(',')
-                line_count += 1
-                
-                #we go through this hoop instead of directly equating line_data[1] to an integer because the text file also contains the newline command which gets printed.
-                for num in line_data[1]:
-                    if num.isnumeric():
-                        showID += str(num)
-                        
-                line_data[1] = int(showID)
-                
-                series_list[line_data[0]] = line_data[1]
-            
-            
-            #now, to remove duplicates
-        series_list = [(l, m) for l, m in series_list.items()]
-        series_l = []
+    def getdata(self):
         
-        for entry in series_list:
-            if entry not in series_l:
-                series_l.append(entry)
+        with open('serie_db.csv', newline='') as r:
+            reader = csv.reader(r, delimiter = ',')
+            #reading the 1st line to get the fields, stored as a list 
+            fields = next(reader)
+            fields = tuple(fields)
+            data = []
             
+            for _ in reader:
+                data.append(_)
+        
+        return data, fields
+                
 
-        #using tabulate cause it's easy and pretty!
-        series_db = tabulate(series_l, headers=['S.no.', 'Show Name' , 'Season Count'], tablefmt='fancy_grid', showindex=range(1, line_count+1))
+    def make_table(self, data, fields):
         
+        table = tabulate(
+            data, headers=[f'{fields[0]}', f'{fields[1]}'] ,
+            tablefmt='fancy_grid',
+            showindex=range(1, len(data)+1)
+        )
         
-        print(series_db)
+        print(table)
+
                     
 def main():
     launch = app().welcome()
@@ -206,23 +191,24 @@ def main():
             write_data = webscraper().write2db(user_choice, get_seasons)
             
         
-    
     elif launch == '2':
-        show_db = table().show_db()
+        getdata = table().getdata()
+        re_data = table().make_table(getdata[0], getdata[1])
         system('pause')
         print()
-        # write_data = app().ask_save()
         launch
+    
     
     elif launch == '3':
         pass
     
+    
     elif launch == 'quit':
         sys.exit()
     
+    
     else:
       print('\n\nEnter a valid selection!\n\n')  
-      return False
     
    
 if __name__ == '__main__':
