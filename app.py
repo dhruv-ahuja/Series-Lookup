@@ -6,7 +6,7 @@ from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
 from tabulate import tabulate
-
+import csv
 
 ia = IMDb()
 
@@ -73,6 +73,7 @@ class app:
             print()
             return False
 
+
 class webscraper(app):
     def __init__(self):
         app.__init__(self)
@@ -111,35 +112,42 @@ class webscraper(app):
         return season_count
 
 
-    # def ask_save(self):
-    #     self.get_seasons()
+    def ask_save(self):
+        ask = input('Do you want to save the show to the database? Enter "yes" to confirm or "no" to go back to the main prompt: ')
         
-    #     ans = input('Do you want to save the show to the database? Enter "yes" to confirm or "no" to go back to main prompt: ')
-        
-    #     if ans == 'no':
-    #         self.ask_save()
-            
-    #     else:
-    #         with open('serie_db.txt', 'a+') as file:
-    #             file_pointer = file.read()
-    #             write_data = f'{self.selection}, {self.season_count}  \n'
-                
-    #             if write_data in file:
-    #                 print('Show already exists in the database!')
-                    
-    #             else:
-    #                 file.write(write_data)
-    #                 print ("Written show and it's season details to the database 😎.") 
-                    
-    #     x = input("Enter 'yes' to go back to main page or 'no'/'quit' to quit the program.  ")
-        
-    #     if x == 'yes':
-    #         return self.ask_save()
-    #     else:
-    #         return sys.exit()
+        return ask.lower()
     
-
-
+    
+    def write2db(self, show_name, season_count):
+        filename = 'serie_db.csv'
+        #initializing the titles(will eliminate the need to make rows in the table module BUT we don't need it as it would probably be created each time we run the program and we don't want that):
+        fields= ['Show Name', 'Seasons']
+        show_info = [show_name, season_count]
+        #check to confirm if fields has already been written to the csv file, meaning we have already input data in the csv file earlier
+        check = False
+        
+        with open('serie_db.csv', newline='') as file:
+            #delimiter means the separator for the data entries in each line
+            r = csv.reader(file, delimiter=',')
+            #csv files interpret data as lists(I think)
+            for row in r:
+                if fields[0] == row[0]:
+                    check = True
+        
+        with open('serie_db.csv', 'a+', newline='') as file:
+            writer = csv.writer(file)
+            #if check is True we only need to write the show details
+            if check == True:
+                writer.writerow(show_info)
+            else:
+                #else write the fields data as well, one-time process
+                writer.writerow(fields)
+                writer.writerow(show_info)
+        
+        print("Written show and it's season details to the database 😎.")
+        print()
+        print()
+            
 
 
 class table:
@@ -192,6 +200,11 @@ def main():
             launch
         else:
             get_seasons = webscraper().get_seasons(user_choice)
+            ask_save = webscraper().ask_save()
+            if ask_save == 'no':
+                launch
+            write_data = webscraper().write2db(user_choice, get_seasons)
+            
         
     
     elif launch == '2':
