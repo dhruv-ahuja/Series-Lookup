@@ -4,7 +4,7 @@ Check For Show Updates and Get Toast Notifications
 
 <h2>About </h2>
 
-My first real-life program made to serve a simple purpose. Add shows to the local database through the app, check for updates and receive desktop toast notifications for the same. 
+My first real-life program made to serve a simple purpose. Add shows to the local database through the app, check for updates to your favourite TV shows and receive desktop toast notifications for the same. 
 
 <h2>Functionalities</h2>
 
