@@ -1,17 +1,14 @@
 <h1>Series-Lookup </h1>
 
-
 Check For Show Updates and Get Toast Notifications
 
 <h2>About </h2>
-
 
 This is my first ever individual project and I wanted to make something which I could use myself in my day-to-day life. I don't check my mails too often so I thought it would be neat to make an app that has the ability to check for updates and show notifications if any show has received a new season.
 
 It took me ~3 weeks to code the app to the point where I would consider it useful and I'm sure there are still some bugs I may have missed. 
 
 <h2>Functionalities</h2>
-
 
 ![image](https://user-images.githubusercontent.com/83733638/126065913-49145d97-fea4-4dd9-9b71-7e2e400dcb43.png)
 You can search for your shows of choice whose data is scraped through IMDb initially and add the show to a local database(.txt file).
