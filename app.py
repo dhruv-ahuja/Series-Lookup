@@ -121,7 +121,7 @@ class webscraper:
         fields= ['Show Name', 'Seasons']
         show_info = [show_name, season_count]
         #check to confirm if fields has already been written to the csv file, meaning we have already input data in the csv file earlier
-        check = False
+        check,is_data_present = False, False
         
         with open('serie_db.csv', newline='') as file:
             #delimiter means the separator for the data entries in each line
@@ -130,21 +130,32 @@ class webscraper:
             for row in r:
                 if fields[0] == row[0]:
                     check = True
-        
+                #if the show data is already in the csv, trigger 
+                if row[0] == str(show_info[0]):
+                    is_data_present = True
+                
+                
         with open('serie_db.csv', 'a+', newline='') as file:
             writer = csv.writer(file)
+            
             #if check is True we only need to write the show details
-            if check == True:
+            if check == True and is_data_present == False:
                 writer.writerow(show_info)
-            else:
+                
+            elif check == False and is_data_present == False:
                 #else write the fields data as well, one-time process
                 writer.writerow(fields)
                 writer.writerow(show_info)
-        
+            
+            if is_data_present == True:
+                print('The show already exists in the database!', 'Going back to the main screen now.')
+                print(),print()
+
+                
         print("Written show and it's season details to the database 😎.")
         print()
         print()
-            
+        
 
 class table:
     
@@ -166,7 +177,7 @@ class table:
     def make_table(self, data, fields):
         
         table = tabulate(
-            data, headers=[f'{fields[0]}', f'{fields[1]}'] ,
+            data, headers=['S. No.', f'{fields[0]}', f'{fields[1]}'] ,
             tablefmt='fancy_grid',
             showindex=range(1, len(data)+1)
         )
@@ -200,7 +211,11 @@ def main():
     
     
     elif launch == '3':
-        pass
+        find_upd = updates().webscraper()
+        update_db = notify().compare(find_upd)
+        system('pause')
+        print()
+        launch
     
     
     elif launch == 'quit':
