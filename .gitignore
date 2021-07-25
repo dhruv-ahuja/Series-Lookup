@@ -1,4 +1,5 @@
 serie_db.txt
+serie_db.csv
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
