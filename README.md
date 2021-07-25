@@ -4,9 +4,7 @@ Check For Show Updates and Get Toast Notifications
 
 <h2>About </h2>
 
-This is my first ever individual project and I wanted to make something which I could use myself in my day-to-day life. I don't check my mails too often so I thought it would be neat to make an app that has the ability to check for updates and show notifications if any show has received a new season.
-
-It took me ~3 weeks to code the app to the point where I would consider it useful and I'm sure there are still some bugs I may have missed. 
+My first real-life program made to serve a simple purpose. Add shows to the local database through the app, check for updates and receive desktop toast notifications for the same. 
 
 <h2>Functionalities</h2>
 
