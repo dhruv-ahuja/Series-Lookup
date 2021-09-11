@@ -180,7 +180,6 @@ class webscraper:
                 
         print("Written show and it's season details to the database 😎.")
         print()
-        print()
         
 
 class table:
