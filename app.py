@@ -1,4 +1,4 @@
-from os import system
+import os
 import sys
 from check_upd import *
 from imdb import IMDb
@@ -13,6 +13,24 @@ ia = IMDb()
 #now I will try to make classes and setup the base for the app
 
 class app:
+    
+    def __init__(self) -> None:
+        path = ".\serie_db.csv"
+        
+        try:
+            if not os.path.exists(path):
+                print("Creating database file (first time user)")
+                print("................................")
+                with open("serie_db.csv", "w") as db:
+                    pass
+                
+                print("Created database file")
+                print()
+            
+        except OSError as e:
+            print("Unable to create Database file to store information, please check your permissions!")
+            
+    
     def welcome(self):
         
         ask_move = input('What would you like to do?\nPress 1 to enter a Netflix show into the local database.\nPress 2 to view the shows stored in the local database.\nPress 3 to check for show updates.\nWrite quit to quit:  ')
@@ -69,6 +87,14 @@ class app:
             
         elif select1 == 0:
             print('Returning you back to the main dialogue.')
+            print()
+            print()
+            return False
+        
+        
+        elif select1 > 4:
+            print("Please enter a valid number!")
+            print("Returning you back to the main dialogue.")
             print()
             print()
             return False
@@ -161,6 +187,13 @@ class table:
     
     def getdata(self):
         
+        
+        csv_size = os.path.getsize("serie_db.csv")
+        
+        if not csv_size:
+
+            return False
+    
         with open('serie_db.csv', newline='') as r:
             reader = csv.reader(r, delimiter = ',')
             #reading the 1st line to get the fields, stored as a list 
@@ -172,6 +205,8 @@ class table:
                 data.append(_)
         
         return data, fields
+
+        
                 
 
     def make_table(self, data, fields):
@@ -204,7 +239,13 @@ def main():
         
     elif launch == '2':
         getdata = table().getdata()
-        re_data = table().make_table(getdata[0], getdata[1])
+        
+        if getdata is False:
+            print("No shows entered in the database! Please save a show first before accessing this option.")
+            
+        else:  
+            re_data = table().make_table(getdata[0], getdata[1])
+            
         system('pause')
         print()
         launch

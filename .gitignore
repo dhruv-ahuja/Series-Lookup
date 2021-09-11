@@ -1,5 +1,5 @@
 serie_db.txt
-serie_db.csv
+*.csv
 .vscode
 # Byte-compiled / optimized / DLL files
 __pycache__/
