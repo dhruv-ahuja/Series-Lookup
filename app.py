@@ -255,18 +255,19 @@ if __name__ == "__main__":
 
             if user_choice == False:
                 print("Going back to the main screen.")
-                init
+                # init
 
             else:
                 get_seasons = Webscraper().get_seasons(user_choice)
                 ask_save = Webscraper().ask_save()
 
-                if ask_save == "no":
-                    break
-                    # app should start again at this point, as of now it just terminates
-                write_data = Webscraper().write2db(user_choice, get_seasons)
+                if ask_save == "yes":
+                    write_data = Webscraper().write2db(user_choice, get_seasons)
 
-                init
+                if ask_save == "no":
+                    print("Going back to main screen")
+                    system("pause")
+                    print()
 
         elif init == "2":
             getdata = table().getdata()
@@ -277,14 +278,14 @@ if __name__ == "__main__":
                 )
                 system("pause")
                 print()
-                init
+                # init
 
             else:
                 re_data = table().make_table(getdata[0], getdata[1])
 
                 system("pause")
                 print()
-                init
+                # init
                 # ask_for_input = True
 
         elif init == "3":
@@ -293,7 +294,7 @@ if __name__ == "__main__":
 
             system("pause")
             print()
-            init
+            # init
 
         elif init == "quit":
             app_persist = False
