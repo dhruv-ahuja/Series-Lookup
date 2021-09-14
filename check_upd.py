@@ -1,5 +1,5 @@
-from os import name, system
-from re import L
+# from os import name, system
+# from re import L
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from webdriver_manager import driver

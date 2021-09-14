@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 from tabulate import tabulate
 import csv
 
+
 ia = IMDb()
 # todo: implement tmdb and get rid of webscraping completely if possible
 
@@ -25,6 +26,7 @@ class App:
             if not os.path.exists(path):
                 print("Creating database file (first time user)")
                 print("................................")
+
                 with open("serie_db.csv", "w") as db:
                     pass
 
@@ -41,13 +43,16 @@ class App:
 
         print("What would you like to do?")
         print("Input 1 to enter a Netflix show into the local database.")
+
         print("Input 2 to view the shows stored in the local database")
         print("Input 3 to check for show updates.")
+
         ask_move = input("Else, input 'quit' to quit the program: ")
 
         return ask_move
 
     def ask_input(self):
+        """Asks the user to input the show of their choice."""
 
         usr_input = input(
             "Enter the TV Show to search for(please try to be accurate!!): "
@@ -56,14 +61,16 @@ class App:
         self.show_search = ia.search_movie(usr_input)
 
         print(f"You have entered {usr_input}. Now scouring our online databases.")
+
         return self.show_search
 
     def results(self, show_search):
+        """Outputs a list of the most relevant shows based on the user's earlier input"""
 
         print("Showing the most relevant results:")
         print()
-        count = 1
 
+        count = 1
         entry = show_search
 
         for series in entry:
@@ -75,7 +82,8 @@ class App:
                 count += 1
 
     def choose(self, show_search):
-        # need to check if the user has made a valid choice or not, if not, keep asking them
+        """Takes in user input for the list of shows being output, then feeds the input to the Webscraper."""
+
         valid_choice = False
 
         while not valid_choice:
@@ -113,6 +121,8 @@ class App:
 
 class Webscraper:
     def get_seasons(self, show_name):
+        """Extracts the number of seasons in the user-selected show"""
+
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument("--headless")
         chrome_options.add_argument("log-level=2")
@@ -147,6 +157,8 @@ class Webscraper:
         return season_count
 
     def ask_save(self):
+        """Asks the user if they want to write the show to the database"""
+
         ask = input(
             'Do you want to save the show to the database? Enter "yes" to confirm or "no" to go back to the main prompt: '
         )
@@ -154,6 +166,8 @@ class Webscraper:
         return ask.lower()
 
     def write2db(self, show_name, season_count):
+        """Writes the show information to the CSV file"""
+
         filename = "serie_db.csv"
 
         # initializing the titles:
@@ -200,13 +214,14 @@ class Webscraper:
                     "The show already exists in the database!",
                     "Going back to the main screen now.",
                 )
-                system("pause")
+                os.system("pause")
 
         print()
 
 
-class table:
+class Table:
     def getdata(self):
+        """Reads and extracts data from the CSV file and prepares it for output"""
 
         csv_size = os.path.getsize("serie_db.csv")
 
@@ -227,6 +242,7 @@ class table:
         return data, fields
 
     def make_table(self, data, fields):
+        """Prints out a table containing a list of all the shows added to the CSV file based on the order in which they were added"""
 
         table = tabulate(
             data,
@@ -239,7 +255,7 @@ class table:
 
 
 if __name__ == "__main__":
-    """Using a while loop here to be able to run the program indefinitely until the user decides to quit."""
+    """Using a while loop here to be able to run the program constantly until the user decides to quit."""
 
     app_persist = True
 
@@ -253,11 +269,12 @@ if __name__ == "__main__":
             results = App().results(show_search)
             user_choice = App().choose(show_search)
 
+            # goes back to the main screen if the user decides to not add the show to the database
             if user_choice == False:
                 print("Going back to the main screen.")
-                # init
 
             else:
+                # if the user decides to proceed, call the webscraper class methods
                 get_seasons = Webscraper().get_seasons(user_choice)
                 ask_save = Webscraper().ask_save()
 
@@ -266,33 +283,34 @@ if __name__ == "__main__":
 
                 if ask_save == "no":
                     print("Going back to main screen")
-                    system("pause")
+                    os.system("pause")
                     print()
 
         elif init == "2":
-            getdata = table().getdata()
+            getdata = Table().getdata()
 
             if getdata is False:
+                # let the user know if the table is empty
+
                 print(
                     "No shows entered in the database! Please save a show first before accessing this option."
                 )
-                system("pause")
+                os.system("pause")
                 print()
                 # init
 
             else:
-                re_data = table().make_table(getdata[0], getdata[1])
+                re_data = Table().make_table(getdata[0], getdata[1])
 
-                system("pause")
+                os.system("pause")
                 print()
-                # init
-                # ask_for_input = True
 
         elif init == "3":
-            find_upd = updates().webscraper()
-            update_db = notify().compare(find_upd)
+            # check for updates and send respective toast notifications
+            find_upd = Updates().webscraper()
+            update_db = Notify().compare(find_upd)
 
-            system("pause")
+            os.system("pause")
             print()
             # init
 
