@@ -9,8 +9,7 @@ from tabulate import tabulate
 import csv
 
 ia = IMDb()
-
-# now I will try to make classes and setup the base for the app
+# todo: implement tmdb and get rid of webscraping completely if possible
 
 
 class App:
@@ -156,19 +155,25 @@ class Webscraper:
 
     def write2db(self, show_name, season_count):
         filename = "serie_db.csv"
+
         # initializing the titles:
         fields = ["Show Name", "Seasons"]
         show_info = [show_name, season_count]
+
         # check to confirm if fields has already been written to the csv file, meaning we have already input data in the csv file earlier
+
         check, is_data_present = False, False
 
         with open("serie_db.csv", newline="") as file:
-            # delimiter means the separator for the data entries in each line
+            # delimiter = separator for the data entries in each line
+
             r = csv.reader(file, delimiter=",")
             # csv files interpret data as lists(I think)
+
             for row in r:
                 if fields[0] == row[0]:
                     check = True
+
                 # if the show data is already in the csv, trigger
                 if row[0] == str(show_info[0]):
                     is_data_present = True
