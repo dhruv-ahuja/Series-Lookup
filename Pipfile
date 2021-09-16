@@ -11,6 +11,8 @@ bs4 = "*"
 webdriver-manager = "*"
 pandas = "*"
 win10toast-persist = "*"
+tmdbv3api = "*"
+python-dotenv = "*"
 
 [dev-packages]
 

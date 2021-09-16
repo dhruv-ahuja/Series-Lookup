@@ -16,10 +16,12 @@ class MakeList:
     # find the list of shows stored in the csv as of present moment
     def read_csv(self):
         data = []
+        
         with open("serie_db.csv", "r+", newline="") as r:
             reader = csv.reader(r)
             # fields refers to the headings in the 1st line
             fields = next(reader)
+            
             for line in r:
                 x, y = line.split(",")
                 y = y.strip()
@@ -30,10 +32,9 @@ class MakeList:
         return data
 
 
-class Updates(MakeList):
+class Updates:
     def __init__(self):
-        # mklist.__init__(self)
-        self.local_data = self.read_csv()
+        self.local_data = MakeList().read_csv()
 
     def webscraper(self):
         chrome_options = webdriver.ChromeOptions()
