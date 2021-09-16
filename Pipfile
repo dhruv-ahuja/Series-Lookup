@@ -13,6 +13,7 @@ pandas = "*"
 win10toast-persist = "*"
 tmdbv3api = "*"
 python-dotenv = "*"
+rich = "*"
 
 [dev-packages]
 
