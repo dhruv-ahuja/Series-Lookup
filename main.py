@@ -69,6 +69,7 @@ class App:
         proper_search_term = False
 
         while not proper_search_term:
+            print()
             search_results = self.tv.search(input("Enter the TV show to look for: "))
 
             if search_results != []:
@@ -151,9 +152,65 @@ class App:
     def write_to_csv(self, show_name, season_count):
         """This method saves the user-selected show to the CSV file."""
 
+        file_name = "serie_db.csv"
+
+        # initializing the field titles
+        fields = ["Show Name", "Seasons"]
+        show_info = [show_name, season_count]
+
+        # check to confirm if the fields have already been written to the csv. if so, we have made modifications before
+        header_check = False
+        existing_data = False
+
+        with open(file_name, newline="") as file:
+            r = csv.reader(file, delimiter=",")
+
+            for row in r:
+                if fields == row:
+                    # if the fields and row have same information,
+                    # we have already once written to the csv before
+                    header_check = True
+
+                # if show information already exists,
+                # the user has already saved it once before
+                # convert the current info set to string
+                # because csv data is in string format
+                if show_info[0] == row[0]:
+                    existing_data = True
+
+        # we can start writing the data now that
+        # our prelinimary checks are complete
+        with open(file_name, "a+", newline="") as file:
+            writer = csv.writer(file)
+
+            # if header exists, we just need to write the show info
+            if header_check and not existing_data:
+                writer.writerow(show_info)
+
+                print()
+                print("Saved the show in the database.")
+
+            elif not header_check and not existing_data:
+                writer.writerow(fields)
+                writer.writerow(show_info)
+
+                print()
+                print("Saved the show in the database.")
+
+            else:
+                print()
+                print("Uh oh. Looks like you've already saved this show before.")
+                os.system("pause")
+
+        print()
+
+class Table:
+    
+
 
 if __name__ == "__main__":
-    # using a while loop here to keep executing the app until the user decides to quit
+    # using a while loop here to keep executing the app
+    # until the user decides to quit
     app_persist = True
 
     while app_persist:
@@ -172,7 +229,7 @@ if __name__ == "__main__":
                 print("Going back to the main screen.")
                 break
 
-            csv_writer = app.write_to_csv(user_choice)
+            csv_writer = app.write_to_csv(*user_choice)
 
         elif init == 0:
             exit()
