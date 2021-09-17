@@ -3,6 +3,7 @@ serie_db.txt
 .vscode
 *.lock
 *.txt
+*.env
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

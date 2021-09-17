@@ -1,20 +1,21 @@
+from rich import print
+from rich.table import Table
+from rich.console import Console
 import csv
-from re import search
 from tmdbv3api import TMDb, TV, Season, Search
 from dotenv import load_dotenv
 import os
 from check_upd import *
-from tabulate import tabulate
 from sys import exit
-from rich import print
 
 
 class App:
     def __init__(self) -> None:
         # load environment variables
-        load_dotenv()
+        load_dotenv(dotenv_path="key.env")
         # initialize tmdb object
         self.tmdb = tmdb = TMDb()
+
         # feed api key
         tmdb.api_key = os.getenv("API_KEY")
         # config
@@ -204,13 +205,15 @@ class App:
         print()
 
 
-class Table:
+class DrawTable:
     def get_data(self):
         """Reads and extracts data from the CSV file and prepares it for output in a tabular form."""
 
         file_name = "serie_db.csv"
 
         if not os.path.getsize(file_name):
+            print("There is no saved data! Please save a show first before accessing!")
+
             return False
 
         with open(file_name) as file:
@@ -230,6 +233,20 @@ class Table:
 
     def make_table(self, header, show_info):
         """Takes the extracted data from the 'get_data' class method and presents it in a tabular form to the user."""
+
+        table = Table(title="TV Show Index", show_header=True, header_style="bold dim")
+        console = Console()
+
+        # adding elements to the table
+        table.add_column(header[0], style="bold dim", justify="center", width=18)
+
+        table.add_column(header[1], style="bold cyan", justify="center")
+
+        # adding the data rows
+        for i in show_info:
+            table.add_row(i[0], i[1])
+
+        console.print(table)
 
 
 if __name__ == "__main__":
@@ -259,8 +276,15 @@ if __name__ == "__main__":
             print()
 
         elif init == 2:
-            table = Table()
+            table = DrawTable()
             get_data = table.get_data()
+            # if get_data == False, no shows stored in the db
+            try:
+                draw_table = table.make_table(*get_data)
+            except TypeError:
+                pass
+
+            os.system("pause")
             print()
 
         elif init == 0:
