@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 import os
 from check_upd import *
 from tabulate import tabulate
-import sys
+from sys import exit
 import rich
 
 
@@ -14,12 +14,14 @@ class App:
         # load environment variables
         load_dotenv()
         # initialize tmdb object
-        tmdb = TMDb()
+        self.tmdb = tmdb = TMDb()
         # feed api key
         tmdb.api_key = os.getenv("API_KEY")
         # config
         tmdb.language = "en"
         tmdb.debug = True
+
+        self.tv = TV()
 
         # run CSV check method at app startup
         self.check_for_csv()
@@ -64,12 +66,10 @@ class App:
     def search_for_show(self):
         """Look for the user-entered search term and return the results for further use by the 'results' method."""
 
-        tv = TV()
-
         proper_search_term = False
 
         while not proper_search_term:
-            search_results = tv.search(input("Enter the TV show to look for: "))
+            search_results = self.tv.search(input("Enter the TV show to look for: "))
 
             if search_results != []:
                 # the search was executed properly
@@ -136,7 +136,20 @@ class App:
             if 0 <= ask_choice <= list_len:
                 valid_choice = True
 
-        return valid_choice
+        show_info = show_index[ask_choice]
+        # the format is of a dict wrapped inside a list
+        show_info = show_info[0]
+
+        # we cannot get detailed information unless we use the show id
+        show_name, show_id = show_info["name"], show_info["id"]
+
+        # while searching a show by name gives a dict inside a list, searching a show by its id gives you a nested dictionary.
+        season_count = self.tv.details(show_id)["number_of_seasons"]
+
+        return show_name, season_count
+
+    def write_to_csv(self, show_name, season_count):
+        """This method saves the user-selected show to the CSV file."""
 
 
 if __name__ == "__main__":
@@ -158,3 +171,8 @@ if __name__ == "__main__":
             if user_choice == 0:
                 print("Going back to the main screen.")
                 break
+
+            csv_writer = app.write_to_csv(user_choice)
+
+        elif init == 0:
+            exit()
