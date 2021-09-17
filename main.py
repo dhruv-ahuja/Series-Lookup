@@ -6,7 +6,7 @@ import os
 from check_upd import *
 from tabulate import tabulate
 from sys import exit
-import rich
+from rich import print
 
 
 class App:
@@ -200,12 +200,36 @@ class App:
             else:
                 print()
                 print("Uh oh. Looks like you've already saved this show before.")
-                os.system("pause")
 
         print()
 
+
 class Table:
-    
+    def get_data(self):
+        """Reads and extracts data from the CSV file and prepares it for output in a tabular form."""
+
+        file_name = "serie_db.csv"
+
+        if not os.path.getsize(file_name):
+            return False
+
+        with open(file_name) as file:
+            reader = csv.reader(file, delimiter=",")
+
+            # reading the first line to get the header
+            header = next(reader)
+            # converting fields from list to tuple for usage in tabulate
+            header = tuple(header)
+
+            show_info = []
+
+            for data in reader:
+                show_info.append(data)
+
+        return header, show_info
+
+    def make_table(self, header, show_info):
+        """Takes the extracted data from the 'get_data' class method and presents it in a tabular form to the user."""
 
 
 if __name__ == "__main__":
@@ -230,6 +254,14 @@ if __name__ == "__main__":
                 break
 
             csv_writer = app.write_to_csv(*user_choice)
+
+            os.system("pause")
+            print()
+
+        elif init == 2:
+            table = Table()
+            get_data = table.get_data()
+            print()
 
         elif init == 0:
             exit()
