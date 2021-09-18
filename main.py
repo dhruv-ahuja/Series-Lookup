@@ -84,7 +84,7 @@ class App:
 
         print("Now scouring the TMDb database for results.")
 
-        return search_results
+        return search_results[:4]
 
     def print_results(self, search_results):
         """Prints the search results in a list manner, while hashing the appropriate data."""
@@ -137,6 +137,10 @@ class App:
 
             if 0 <= ask_choice <= list_len:
                 valid_choice = True
+
+        if not ask_choice:
+            # go back to main screen
+            return ask_choice
 
         show_info = show_index[ask_choice]
         # the format is of a dict wrapped inside a list
@@ -270,9 +274,9 @@ if __name__ == "__main__":
 
             if user_choice == 0:
                 print("Going back to the main screen.")
-                break
-
-            csv_writer = app.write_to_csv(*user_choice)
+                # break
+            else:
+                csv_writer = app.write_to_csv(*user_choice)
 
             os.system("pause")
             print()
