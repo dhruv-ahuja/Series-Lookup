@@ -2,7 +2,7 @@ from rich import print
 from rich.table import Table
 from rich.console import Console
 import csv
-from tmdbv3api import TMDb, TV, Season, Search
+from tmdbv3api import TMDb, TV
 from dotenv import load_dotenv
 import os
 from check_upd import *
@@ -16,7 +16,7 @@ class App:
         # initialize tmdb object
         self.tmdb = tmdb = TMDb()
 
-        # feed api key
+        # set api key
         tmdb.api_key = os.getenv("API_KEY")
         # config
         tmdb.language = "en"
@@ -148,16 +148,16 @@ class App:
         # while searching a show by name gives a dict inside a list, searching a show by its id gives you a nested dictionary.
         season_count = self.tv.details(show_id)["number_of_seasons"]
 
-        return show_name, season_count
+        return show_name, season_count, show_id
 
-    def write_to_csv(self, show_name, season_count):
+    def write_to_csv(self, show_name, season_count, show_id):
         """This method saves the user-selected show to the CSV file."""
 
         file_name = "serie_db.csv"
 
         # initializing the field titles
-        fields = ["Show Name", "Seasons"]
-        show_info = [show_name, season_count]
+        fields = ["Show Name", "Seasons", "Show ID"]
+        show_info = [show_name, season_count, show_id]
 
         # check to confirm if the fields have already been written to the csv. if so, we have made modifications before
         header_check = False
@@ -234,17 +234,19 @@ class DrawTable:
     def make_table(self, header, show_info):
         """Takes the extracted data from the 'get_data' class method and presents it in a tabular form to the user."""
 
-        table = Table(title="TV Show Index", show_header=True, header_style="bold dim")
+        table = Table(title="TV Show Index", show_header=True, header_style="bold cyan")
         console = Console()
 
         # adding elements to the table
-        table.add_column(header[0], style="bold dim", justify="center", width=18)
+        table.add_column(header[0], style="bold yellow", justify="center", width=18)
 
-        table.add_column(header[1], style="bold cyan", justify="center")
+        table.add_column(header[1], style="bold green", justify="center")
+
+        table.add_column(header[2], style="bold purple", justify="center")
 
         # adding the data rows
         for i in show_info:
-            table.add_row(i[0], i[1])
+            table.add_row(i[0], i[1], i[2])
 
         console.print(table)
 
@@ -286,6 +288,9 @@ if __name__ == "__main__":
 
             os.system("pause")
             print()
+
+        elif init == 3:
+            pass
 
         elif init == 0:
             exit()
