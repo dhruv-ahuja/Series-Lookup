@@ -71,7 +71,13 @@ class App:
 
         while not proper_search_term:
             print()
-            search_results = self.tv.search(input("Enter the TV show to look for: "))
+
+            search_term = input("Enter the TV show to look for, or 0 to go back: ")
+
+            if search_term == "0":
+                return 0
+
+            search_results = self.tv.search(search_term)
 
             if search_results != []:
                 # the search was executed properly
@@ -84,27 +90,31 @@ class App:
 
         print("Now scouring the TMDb database for results.")
 
-        return search_results[:4]
+        return search_results[:8]
 
-    def print_results(self, search_results):
+    def print_results(self, results):
         """Prints the search results in a list manner, while hashing the appropriate data."""
 
         print("Showing the most relevant results.")
         print()
 
-        list_len = len(search_results)
+        list_len = len(results)
 
         show_index = {}
 
         for i in range(list_len):
             # map the shows in the list to a dictionary
-            show_index[i + 1] = search_results
+            show_index[i + 1] = results
 
             # print the show name, year of origin and country of origin (CoO is in list form, print the 1st entry)
+
             print(
-                f"{i + 1}. {search_results [i] ['name']},\
- {search_results [i] ['first_air_date'] [:4]},\
- {search_results [i] ['origin_country'] [0]}"
+                "{}. {}, {}, {}".format(
+                    i + 1,
+                    results[i]["name"],
+                    results[i]["first_air_date"][:4],
+                    results[i]["origin_country"][0],
+                )
             )
 
         return show_index, list_len
@@ -268,15 +278,14 @@ if __name__ == "__main__":
 
             search = app.search_for_show()
 
-            print_results = app.print_results(search)
+            if search != 0:
 
-            user_choice = app.get_user_choice(*print_results)
+                print_results = app.print_results(search)
 
-            if user_choice == 0:
-                print("Going back to the main screen.")
-                # break
-            else:
-                csv_writer = app.write_to_csv(*user_choice)
+                user_choice = app.get_user_choice(*print_results)
+
+                if user_choice != 0:
+                    csv_writer = app.write_to_csv(*user_choice)
 
             os.system("pause")
             print()
