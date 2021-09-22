@@ -50,7 +50,8 @@ def get_updates(shows_data):
 
     # instantiate the tmdb object
     tmdb = TMDb()
-    tmdb.api_key = os.getenv("API_KEY")
+    # tmdb.api_key = os.getenv("API_KEY")
+    tmdb.api_key = "ENTER KEY HERE!"
     tmdb.debug = True
 
     tv = TV()
@@ -116,7 +117,7 @@ def send_notification(new_seasons):
             "New Season Alert!", f"The show {data[0]} has a new season!", duration=None
         )
 
-        sleep(6.66)
+        sleep(7)
 
         count = count + 1
 

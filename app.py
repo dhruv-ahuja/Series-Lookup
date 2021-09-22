@@ -1,321 +1,323 @@
-import os
-import sys
-from check_upd import *
-from imdb import IMDb
-from selenium import webdriver
-from webdriver_manager.chrome import ChromeDriverManager
-from bs4 import BeautifulSoup
-from tabulate import tabulate
+from rich import print
+from rich.table import Table
+from rich.console import Console
 import csv
-
-
-ia = IMDb()
-# todo: implement tmdb and get rid of webscraping completely if possible
+from tmdbv3api import TMDb, TV
+from dotenv import load_dotenv
+import os
+from sys import exit
+from check_updates import *
 
 
 class App:
     def __init__(self) -> None:
+        # load environment variables
+        load_dotenv(dotenv_path="key.env")
+        # initialize tmdb object
+        self.tmdb = tmdb = TMDb()
+
+        # set api key
+        # tmdb.api_key = os.getenv("API_KEY")
+        tmdb.api_key = "ENTER KEY HERE!"
+        # config
+        tmdb.language = "en"
+        tmdb.debug = True
+
+        self.tv = TV()
+
+        # run CSV check method at app startup
         self.check_for_csv()
 
     def check_for_csv(self):
-        """Creates a CSV file to store data if it does not yet exist."""
+        """Creates a CSV file to store data if it does not yet exist"""
 
+        # path to the CSV file
         path = ".\serie_db.csv"
 
         try:
+            # check for the CSV file in the current working directory
             if not os.path.exists(path):
                 print("Creating database file (first time user)")
                 print("................................")
 
-                with open("serie_db.csv", "w") as db:
+                # a simple context manager execution as "w" will create the file for us
+                with open("serie_db.csv", "w") as file:
                     pass
 
-                print("Created database file")
+                print("Database created")
                 print()
 
         except OSError as e:
-            print(
-                "Unable to create Database file to store information, please check your permissions!"
-            )
+            print("Unable to create database file!")
+            print()
+            quit()
 
     def welcome(self):
         """The welcome screen of the app. Shows a list of options to the user, takes user input and feeds the input to other functions in the program."""
 
-        print("What would you like to do?")
-        print("Input 1 to enter a Netflix show into the local database.")
+        print("Hello, what would you like to do?")
 
+        print("Input 1 to enter a TV show into the local database.")
         print("Input 2 to view the shows stored in the local database")
         print("Input 3 to check for show updates.")
 
-        ask_move = input("Else, input 'quit' to quit the program: ")
+        ask_input = int(input("Else, input 0 to quit the program: "))
 
-        return ask_move
+        return ask_input
 
-    def ask_input(self):
-        """Asks the user to input the show of their choice."""
+    def search_for_show(self):
+        """Look for the user-entered search term and return the results for further use by the 'results' method."""
 
-        usr_input = input(
-            "Enter the TV Show to search for(please try to be accurate!!): "
-        )
+        proper_search_term = False
 
-        self.show_search = ia.search_movie(usr_input)
+        while not proper_search_term:
+            print()
 
-        print(f"You have entered {usr_input}. Now scouring our online databases.")
+            search_term = input("Enter the TV show to look for, or 0 to go back: ")
 
-        return self.show_search
+            if search_term == "0":
+                return 0
 
-    def results(self, show_search):
-        """Outputs a list of the most relevant shows based on the user's earlier input"""
+            search_results = self.tv.search(search_term)
 
-        print("Showing the most relevant results:")
+            if search_results != []:
+                # the search was executed properly
+                proper_search_term = True
+
+            else:
+                print(
+                    "Your search term did not result in any results, please try again!"
+                )
+
+        print("Now scouring the TMDb database for results.")
+
+        return search_results[:8]
+
+    def print_results(self, results):
+        """Prints the search results in a list manner, while hashing the appropriate data."""
+
+        print("Showing the most relevant results.")
         print()
 
-        count = 1
-        entry = show_search
+        list_len = len(results)
 
-        for series in entry:
-            yr = "year"
+        show_index = {}
 
-            if series["kind"] == "tv series" and int(series["year"]) > 1990:
+        for i in range(list_len):
+            # map the shows in the list to a dictionary
+            show_index[i + 1] = results
 
-                print(f'{count}. {series}, {series["year"]}')
-                count += 1
+            # print the show name, year of origin and country of origin (CoO is in list form, print the 1st entry)
 
-    def choose(self, show_search):
-        """Takes in user input for the list of shows being output, then feeds the input to the Webscraper."""
-
-        valid_choice = False
-
-        while not valid_choice:
-            select1 = int(
-                input(
-                    "Select your show from the list, enter a number from 1 to 4 or press 0 to go back to main screen: "
+            print(
+                "{}. {}, {}, {}".format(
+                    i + 1,
+                    results[i]["name"],
+                    results[i]["first_air_date"][:4],
+                    results[i]["origin_country"][0],
                 )
             )
 
-            ent = show_search
+        return show_index, list_len
 
-            if 1 <= select1 < 4:
-                num_map = {1: ent[0], 2: ent[1], 3: ent[2], 4: ent[3]}
+    def get_user_choice(self, show_index, list_len):
+        """Give the user a prompt to select their choice of TV show from the list generated by 'print_results' class method."""
 
-                selection = num_map[select1]
-                seriesID = selection.movieID
-                year = selection["year"]
+        valid_choice = False
 
-                print(f"You've chosen {selection}, {year}")
-
-                valid_choice = True
-                return selection
-
-            elif select1 == 0:
-                print("Returning you back to the main dialogue.")
-                print()
-                print()
-                valid_choice = True
-                return False
-
-            elif select1 > 4:
-                print("Please enter a valid number!")
-                print()
-
-
-class Webscraper:
-    def get_seasons(self, show_name):
-        """Extracts the number of seasons in the user-selected show"""
-
-        chrome_options = webdriver.ChromeOptions()
-        chrome_options.add_argument("--headless")
-        chrome_options.add_argument("log-level=2")
-
-        driver = webdriver.Chrome(
-            ChromeDriverManager().install(), options=chrome_options
+        print(
+            "Input a number to select the show of your choice. Your choice will then be saved in the local database."
         )
 
-        query = f"{show_name} Netflix"
-        links = []
-        url = f"http:\\google.com/search?q={query}&start="
-        driver.get(url)
+        while not valid_choice:
+            # giving users the option to go back since it can be a major hassle to be re-executing everything if you make a simple typo
+            if list_len > 1:
 
-        soup = BeautifulSoup(driver.page_source, "lxml")
-        search = soup.find_all("div", class_="yuRUbf")
-        for h in search:
-            links.append(h.a.get("href"))
+                ask_choice = int(
+                    input(
+                        f"Enter a number between 1 and {list_len} or 0 if you want to go back: "
+                    )
+                )
 
-        show_url = links[0]
-        driver.get(show_url)
-        soup = BeautifulSoup(driver.page_source, "lxml")
-        search2 = soup.find_all("span", attrs={"class": "test_dur_str"})
+            else:
+                ask_choice = int(
+                    input(
+                        f"Enter 1 if you want to select the show or 0 if you want to go back: "
+                    )
+                )
 
-        parsed = []
-        for page in search2:
-            parsed.append(page.text[:2])
+            if 0 <= ask_choice <= list_len:
+                valid_choice = True
 
-        parsed = [int(str(i.strip())) for i in parsed]
-        self.season_count = season_count = parsed[0]
+        if not ask_choice:
+            # go back to main screen
+            return ask_choice
 
-        print(f"Number of seasons: {season_count} of show: {show_name}")
-        return season_count
+        show_info = show_index[ask_choice]
+        # the format is of a dict wrapped inside a list
+        show_info = show_info[0]
 
-    def ask_save(self):
-        """Asks the user if they want to write the show to the database"""
+        # we cannot get detailed information unless we use the show id
+        show_name, show_id = show_info["name"], show_info["id"]
 
-        ask = input(
-            'Do you want to save the show to the database? Enter "yes" to confirm or "no" to go back to the main prompt: '
-        )
+        # while searching a show by name gives a dict inside a list, searching a show by its id gives you a nested dictionary.
+        season_count = self.tv.details(show_id)["number_of_seasons"]
 
-        return ask.lower()
+        return show_name, season_count, show_id
 
-    def write2db(self, show_name, season_count):
-        """Writes the show information to the CSV file"""
+    def write_to_csv(self, show_name, season_count, show_id):
+        """This method saves the user-selected show to the CSV file."""
 
-        filename = "serie_db.csv"
+        file_name = "serie_db.csv"
 
-        # initializing the titles:
-        fields = ["Show Name", "Seasons"]
-        show_info = [show_name, season_count]
+        # initializing the field titles
+        fields = ["Show Name", "Seasons", "Show ID"]
+        show_info = [show_name, season_count, show_id]
 
-        # check to confirm if fields has already been written to the csv file, meaning we have already input data in the csv file earlier
+        # check to confirm if the fields have already been written to the csv. if so, we have made modifications before
+        header_check = False
+        existing_data = False
 
-        check, is_data_present = False, False
-
-        with open("serie_db.csv", newline="") as file:
-            # delimiter = separator for the data entries in each line
-
+        with open(file_name, newline="") as file:
             r = csv.reader(file, delimiter=",")
-            # csv files interpret data as lists(I think)
 
             for row in r:
-                if fields[0] == row[0]:
-                    check = True
+                if fields == row:
+                    # if the fields and row have same information,
+                    # we have already once written to the csv before
+                    header_check = True
 
-                # if the show data is already in the csv, trigger
-                if row[0] == str(show_info[0]):
-                    is_data_present = True
+                # if show information already exists,
+                # the user has already saved it once before
+                # convert the current info set to string
+                # because csv data is in string format
+                if show_info[0] == row[0]:
+                    existing_data = True
 
-        with open("serie_db.csv", "a+", newline="") as file:
+        # we can start writing the data now that
+        # our prelinimary checks are complete
+        with open(file_name, "a+", newline="") as file:
             writer = csv.writer(file)
 
-            # if check is True we only need to write the show details
-            if check == True and is_data_present == False:
+            # if header exists, we just need to write the show info
+            if header_check and not existing_data:
                 writer.writerow(show_info)
 
-                print("Written show and it's season details to the database 😎.")
+                print()
+                print("Saved the show in the database.")
 
-            elif check == False and is_data_present == False:
-                # else write the fields data as well, one-time process
+            elif not header_check and not existing_data:
                 writer.writerow(fields)
                 writer.writerow(show_info)
 
-                print("Written show and it's season details to the database 😎.")
-
-            if is_data_present == True:
                 print()
-                print(
-                    "The show already exists in the database!",
-                    "Going back to the main screen now.",
-                )
-                os.system("pause")
+                print("Saved the show in the database.")
+
+            else:
+                print()
+                print("Uh oh. Looks like you've already saved this show before.")
 
         print()
 
 
-class Table:
-    def getdata(self):
-        """Reads and extracts data from the CSV file and prepares it for output"""
+class DrawTable:
+    def get_data(self):
+        """Reads and extracts data from the CSV file and prepares it for output in a tabular form."""
 
-        csv_size = os.path.getsize("serie_db.csv")
+        file_name = "serie_db.csv"
 
-        if not csv_size:
+        if not os.path.getsize(file_name):
+            print("There is no saved data! Please save a show first before accessing!")
 
             return False
 
-        with open("serie_db.csv", newline="") as r:
-            reader = csv.reader(r, delimiter=",")
-            # reading the 1st line to get the fields, stored as a list
-            fields = next(reader)
-            fields = tuple(fields)
-            data = []
+        with open(file_name) as file:
+            reader = csv.reader(file, delimiter=",")
 
-            for _ in reader:
-                data.append(_)
+            # reading the first line to get the header
+            header = next(reader)
+            # converting fields from list to tuple for usage in tabulate
+            header = tuple(header)
 
-        return data, fields
+            show_info = []
 
-    def make_table(self, data, fields):
-        """Prints out a table containing a list of all the shows added to the CSV file based on the order in which they were added"""
+            for data in reader:
+                show_info.append(data)
 
-        table = tabulate(
-            data,
-            headers=["S. No.", f"{fields[0]}", f"{fields[1]}"],
-            tablefmt="fancy_grid",
-            showindex=range(1, len(data) + 1),
-        )
+        return header, show_info
 
-        print(table)
+    def make_table(self, header, show_info):
+        """Takes the extracted data from the 'get_data' class method and presents it in a tabular form to the user."""
+
+        table = Table(title="TV Show Index", show_header=True, header_style="bold cyan")
+        console = Console()
+
+        # adding elements to the table
+        table.add_column(header[0], style="bold yellow", justify="center", width=18)
+
+        table.add_column(header[1], style="bold green", justify="center")
+
+        table.add_column(header[2], style="bold purple", justify="center")
+
+        # adding the data rows
+        for i in show_info:
+            table.add_row(i[0], i[1], i[2])
+
+        console.print(table)
 
 
 if __name__ == "__main__":
-    """Using a while loop here to be able to run the program constantly until the user decides to quit."""
-
+    # using a while loop here to keep executing the app
+    # until the user decides to quit
     app_persist = True
 
     while app_persist:
-
         app = App()
         init = app.welcome()
 
-        if init == "1":
-            show_search = App().ask_input()
-            results = App().results(show_search)
-            user_choice = App().choose(show_search)
+        if init == 1:
 
-            # goes back to the main screen if the user decides to not add the show to the database
-            if user_choice == False:
-                print("Going back to the main screen.")
+            search = app.search_for_show()
 
-            else:
-                # if the user decides to proceed, call the webscraper class methods
-                get_seasons = Webscraper().get_seasons(user_choice)
-                ask_save = Webscraper().ask_save()
+            if search != 0:
 
-                if ask_save == "yes":
-                    write_data = Webscraper().write2db(user_choice, get_seasons)
+                print_results = app.print_results(search)
 
-                if ask_save == "no":
-                    print("Going back to main screen")
-                    os.system("pause")
-                    print()
+                user_choice = app.get_user_choice(*print_results)
 
-        elif init == "2":
-            getdata = Table().getdata()
-
-            if getdata is False:
-                # let the user know if the table is empty
-
-                print(
-                    "No shows entered in the database! Please save a show first before accessing this option."
-                )
-                os.system("pause")
-                print()
-                # init
-
-            else:
-                re_data = Table().make_table(getdata[0], getdata[1])
-
-                os.system("pause")
-                print()
-
-        elif init == "3":
-            # check for updates and send respective toast notifications
-            find_upd = Updates().webscraper()
-            update_db = Notify().compare(find_upd)
+                if user_choice != 0:
+                    csv_writer = app.write_to_csv(*user_choice)
 
             os.system("pause")
             print()
-            # init
 
-        elif init == "quit":
-            app_persist = False
+        elif init == 2:
+            table = DrawTable()
+            get_data = table.get_data()
+            # if get_data == False, no shows stored in the db
+            try:
+                draw_table = table.make_table(*get_data)
+            except TypeError:
+                pass
 
-        else:
-            print("Enter a valid selection!\n")
+            os.system("pause")
+            print()
+
+        elif init == 3:
+
+            read_csv = read_data()
+
+            if read_csv == []:
+                quit()
+
+            updates = get_updates(read_csv)
+
+            save_updates = update_db(updates)
+
+            notifier = send_notification(updates)
+
+            os.system("pause")
+            print()
+
+        elif init == 0:
+            exit()

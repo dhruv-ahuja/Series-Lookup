@@ -4,15 +4,9 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-imdbpy = "*"
-tabulate = "*"
-selenium = "*"
-bs4 = "*"
-webdriver-manager = "*"
-pandas = "*"
-win10toast-persist = "*"
 tmdbv3api = "*"
-python-dotenv = "*"
+win10toast-persist = "*"
+pandas = "*"
 rich = "*"
 
 [dev-packages]
