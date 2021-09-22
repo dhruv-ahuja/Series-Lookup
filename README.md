@@ -1,6 +1,6 @@
 <h1>Series-Lookup </h1>
 
-Check For Show Updates and Get Toast Notifications
+Check For Show Updates and Get Windows Notifications
 
 <h2>About </h2>
 
@@ -8,15 +8,18 @@ A program made to serve a simple purpose- Add ongoing-shows of your choice to th
 
 <h2>Functionalities</h2>
 
-![image](https://user-images.githubusercontent.com/83733638/126065913-49145d97-fea4-4dd9-9b71-7e2e400dcb43.png)
-You can search for your shows of choice whose data is scraped through IMDb initially and add the show to a local database(.txt file).
+![image](https://user-images.githubusercontent.com/83733638/134290186-5f7ecc46-86bc-4b61-a245-cf399a0da683.png)
 
-![image](https://user-images.githubusercontent.com/83733638/126065922-9f7ebfef-2065-42a2-99dc-f08f0c4c76f3.png)
- View the stored data in a neat table format.
+You can search for your shows of choice whose data is scraped through TMDB's API and add the show to a local database(.csv file).
+
+![image](https://user-images.githubusercontent.com/83733638/134289332-b146286a-d6a8-478a-b7e7-a8bb21c307bc.png)
+
+View the stored data in a neat table format.
  
-![image](https://user-images.githubusercontent.com/83733638/126066049-a5c21021-6d0e-4657-9ce9-f86e17398d29.png)
 
-Receive toast notifications after checking for updates. 
+![Screenshot 2021-09-22 112248](https://user-images.githubusercontent.com/83733638/134290279-d5334cf2-c0fc-47bd-8115-072caf66db59.png)
+
+Receive Windows toast notifications after checking for updates. 
 
 <h2>Setup</h2>
 
