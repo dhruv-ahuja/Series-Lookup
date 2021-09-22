@@ -1,11 +1,14 @@
 serie_db.txt
 *.csv
 .vscode
+*.lock
+*.txt
+*.env
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
-
 # C extensions
 *.so
 
