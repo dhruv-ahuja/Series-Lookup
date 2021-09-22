@@ -392,13 +392,13 @@ class Updates:
 if __name__ == "__main__":
     # load environment variables
     load_dotenv(dotenv_path="key.env")
-    api_key = os.getenv("API_KEY")
+    # api_key = os.getenv("API_KEY")
 
     tmdb = TMDb()
 
     # set api key
-    tmdb.api_key = api_key
-    # tmdb.api_key = "ENTER KEY HERE!"
+    # tmdb.api_key = api_key
+    tmdb.api_key = "ENTER KEY HERE!"
 
     # config
     tmdb.language = "en"
