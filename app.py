@@ -13,18 +13,6 @@ from time import sleep
 
 class App:
     def __init__(self) -> None:
-        # initialize tmdb object
-        self.tmdb = tmdb = TMDb()
-
-        # set api key
-        tmdb.api_key = api_key
-        # tmdb.api_key = "ENTER KEY HERE!"
-
-        # config
-        tmdb.language = "en"
-        tmdb.debug = True
-
-        self.tv = TV()
 
         # run CSV check method at app startup
         self.check_for_csv()
@@ -85,7 +73,7 @@ class App:
             if search_term == "0":
                 return 0
 
-            search_results = self.tv.search(search_term)
+            search_results = tv.search(search_term)
 
             if search_results != []:
                 # the search was executed properly
@@ -98,7 +86,15 @@ class App:
 
         print("Now scouring the TMDb database for results.")
 
-        return search_results[:8]
+        try:
+            # if there are too many results, restrict them to a max of 9
+            search_results = search_results[:8]
+
+        except IndexError:
+            # otherwise, let the list pass as is
+            pass
+
+        return search_results
 
     def print_results(self, results):
         """
@@ -118,14 +114,20 @@ class App:
 
             # print the show name, year of origin and country of origin (CoO is in list form, print the 1st entry)
 
-            print(
-                "{}. {}, {}, {}".format(
-                    i + 1,
-                    results[i]["name"],
-                    results[i]["first_air_date"][:4],
-                    results[i]["origin_country"][0],
+            try:
+                # some shows might have incorrect or incomplete data somewhere, for example in really old shows
+
+                print(
+                    "{}. {}, {}, {}".format(
+                        i + 1,
+                        results[i]["name"],
+                        results[i]["first_air_date"][:4],
+                        results[i]["origin_country"][0],
+                    )
                 )
-            )
+
+            except IndexError:
+                pass
 
         return show_index, list_len
 
@@ -171,7 +173,7 @@ class App:
         show_name, show_id = show_info["name"], show_info["id"]
 
         # while searching a show by name gives a dict inside a list, searching a show by its id gives you a nested dictionary.
-        season_count = self.tv.details(show_id)["number_of_seasons"]
+        season_count = tv.details(show_id)["number_of_seasons"]
 
         return show_name, season_count, show_id
 
@@ -310,24 +312,13 @@ class Updates:
 
     def get_updates(self, shows_data):
         """
-        use the tmdb api to search for updates for the shows stored in the local database.
+        Use the tmdb api to search for updates for the shows stored in the local database.
         """
 
         if shows_data == []:
             print("There is no saved data! Please save a show first before accessing!")
 
             return
-
-        # load the .env file that stores my own tmdb api key
-        # load_dotenv(dotenv_path="key.env")
-
-        # instantiate the tmdb object
-        tmdb = TMDb()
-        tmdb.api_key = api_key
-        # tmdb.api_key = "ENTER KEY HERE!"
-        tmdb.debug = True
-
-        tv = TV()
 
         new_seasons = []
 
@@ -402,6 +393,18 @@ if __name__ == "__main__":
     # load environment variables
     load_dotenv(dotenv_path="key.env")
     api_key = os.getenv("API_KEY")
+
+    tmdb = TMDb()
+
+    # set api key
+    tmdb.api_key = api_key
+    # tmdb.api_key = "ENTER KEY HERE!"
+
+    # config
+    tmdb.language = "en"
+    tmdb.debug = True
+
+    tv = TV()
 
     # using a while loop here to keep executing the app
     # until the user decides to quit
