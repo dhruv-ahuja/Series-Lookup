@@ -2,7 +2,6 @@ serie_db.txt
 *.csv
 .vscode
 *.lock
-*.txt
 *.env
 
 # Byte-compiled / optimized / DLL files
