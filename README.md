@@ -26,5 +26,5 @@ Receive Windows toast notifications after checking for updates.
 1. Clone the repo or download the zip files from [here](https://github.com/good-times-ahead/Series-Lookup/archive/refs/heads/home.zip).
 2. Open "app.py" with your code editor of choice, go to line 21 and input your TMDB API key ```tmdb.api_key = "ENTER KEY HERE!"``` in the string section.
 3. Create a virtual environment (recommended).
-4. Activate the virtual environment if you created one, and run the command "pip install -r requirements.txt"
-5. Now that the dependencies have been installed, you can run "app.py" and get started with the app.
+4. Activate the virtual environment if you created one, and run the command "pip install -r requirements.txt" or install using Pipenv.
+5. Now that the dependencies have been installed, you can run "app.py" and get started with the app!
