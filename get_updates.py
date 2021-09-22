@@ -40,6 +40,11 @@ def get_updates(shows_data):
     use the tmdb api to search for updates for the shows stored in the local database.
     """
 
+    if read_data == []:
+        print("There is no saved data! Please save a show first before accessing!")
+
+        return
+
     # load the .env file that stores our tmdb api key
     load_dotenv(dotenv_path="key.env")
 
@@ -93,10 +98,14 @@ def send_notification(new_seasons):
     Send toast notifications to the user if there have been updates.
     """
 
-    if new_seasons == []:
-        return
-
     notifier = ToastNotifier()
+
+    if new_seasons == []:
+        notifier.show_toast("Overview", "No updates.", duration=None)
+
+        print()
+
+        return
 
     count = 0
 
@@ -107,12 +116,14 @@ def send_notification(new_seasons):
             "New Season Alert!", f"The show {data[0]} has a new season!", duration=None
         )
 
-        sleep(8)
+        sleep(6.66)
 
         count = count + 1
 
     # send an overview notification
     notifier.show_toast("Overview", f"{count} updates.", duration=None)
+
+    print()
 
 
 if __name__ == "__main__":

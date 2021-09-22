@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 import os
 from check_upd import *
 from sys import exit
+from get_updates import *
 
 
 class App:
@@ -303,7 +304,20 @@ if __name__ == "__main__":
             print()
 
         elif init == 3:
-            pass
+
+            read_csv = read_data()
+
+            if read_csv == []:
+                quit()
+
+            updates = get_updates(read_csv)
+
+            save_updates = update_db(updates)
+
+            notifier = send_notification(updates)
+
+            os.system("pause")
+            print()
 
         elif init == 0:
             exit()
