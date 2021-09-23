@@ -9,6 +9,7 @@ from sys import exit
 import pandas
 from win10toast_persist import ToastNotifier
 from time import sleep
+from pathlib import Path
 
 
 class App:
@@ -23,16 +24,16 @@ class App:
         """
 
         # path to the CSV file
-        path = ".\serie_db.csv"
+        db_path = "G:/Py/2021/MyProj/Series-Lookup/serie_db.csv"
 
         try:
             # check for the CSV file in the current working directory
-            if not os.path.exists(path):
+            if not os.path.exists(db_path):
                 print("Creating database file (first time user)")
                 print("................................")
 
                 # a simple context manager execution as "w" will create the file for us
-                with open("serie_db.csv", "w") as file:
+                with open(db_path, "w") as file:
                     pass
 
                 print("Database created")
@@ -181,7 +182,7 @@ class App:
         """
         This method saves the user-selected show to the CSV file."""
 
-        file_name = "serie_db.csv"
+        file_name = "G:/Py/2021/MyProj/Series-Lookup/serie_db.csv"
 
         # initializing the field titles
         fields = ["Show Name", "Seasons", "Show ID"]
@@ -239,7 +240,7 @@ class DrawTable:
         Reads and extracts data from the CSV file and prepares it for output in a tabular form.
         """
 
-        file_name = "serie_db.csv"
+        file_name = "G:/Py/2021/MyProj/Series-Lookup/serie_db.csv"
 
         if not os.path.getsize(file_name):
             print("There is no saved data! Please save a show first before accessing!")
@@ -289,7 +290,7 @@ class Updates:
         Read the database and collect show information for further use by other methods.
         """
 
-        self.file_name = "serie_db.csv"
+        self.file_name = "G:/Py/2021/MyProj/Series-Lookup/serie_db.csv"
 
         # using os' "getsize" method to check if the user has saved any tv shows
         check_for_db = os.path.getsize(self.file_name)
@@ -327,7 +328,13 @@ class Updates:
             curr_seasons = int(data[1])
             tmdb_id = int(data[2])
 
-            check_seasons = tv.details(tmdb_id)["number_of_seasons"]
+            try:
+                check_seasons = tv.details(tmdb_id)["number_of_seasons"]
+
+            except:
+                print("Please enter an API key first!")
+
+                return
 
             # now, only push the check_update integer into the list if
             # the show received an update, else scrape it
@@ -343,8 +350,10 @@ class Updates:
         if new_seasons == []:
             return
 
+        db_path = "G:/Py/2021/MyProj/Series-Lookup/serie_db.csv"
+
         # we'll use pandas to convert the csv to a dataframe, make needed changes and then convert it back
-        csv_df = pandas.read_csv("serie_db.csv")
+        csv_df = pandas.read_csv(db_path)
 
         for data in new_seasons:
             name, seasons = data[0], data[1]
@@ -354,7 +363,7 @@ class Updates:
             csv_df.loc[csv_df["Show Name"] == name, "Seasons"] = f"{str(seasons)}"
 
         # write changes to the file
-        csv_df.to_csv("serie_db.csv", index=False)
+        csv_df.to_csv(db_path, index=False)
 
     def send_notification(self, new_seasons):
         """
@@ -412,6 +421,16 @@ if __name__ == "__main__":
 
     while app_persist:
         app = App()
+
+        if tmdb.api_key == "ENTER KEY HERE!":
+            print(
+                "The app won't work without a TMDB API key, please generate one and enter it in line 410 of the python file."
+            )
+
+            os.system("pause")
+            print()
+            exit()
+
         init = app.welcome()
 
         if init == 1:
@@ -446,7 +465,10 @@ if __name__ == "__main__":
             updates = Updates()
             read_csv = updates.read_data()
 
-            if read_csv != []:
+            if read_csv == []:
+                pass
+
+            else:
 
                 get_updates = updates.get_updates(read_csv)
 
