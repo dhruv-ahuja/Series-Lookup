@@ -291,8 +291,8 @@ class Updates:
 
         self.file_name = "serie_db.csv"
 
-        # using os' "exists" method to check if the user has saved any tv shows
-        check_for_db = os.path.exists(self.file_name)
+        # using os' "getsize" method to check if the user has saved any tv shows
+        check_for_db = os.path.getsize(self.file_name)
 
         if not check_for_db:
             # if the db file does not exist, print an error message and exit
@@ -446,14 +446,13 @@ if __name__ == "__main__":
             updates = Updates()
             read_csv = updates.read_data()
 
-            if read_csv == []:
-                quit()
+            if read_csv != []:
 
-            get_updates = updates.get_updates(read_csv)
+                get_updates = updates.get_updates(read_csv)
 
-            save_updates = updates.update_db(get_updates)
+                save_updates = updates.update_db(get_updates)
 
-            notifier = updates.send_notification(get_updates)
+                notifier = updates.send_notification(get_updates)
 
             os.system("pause")
             print()
