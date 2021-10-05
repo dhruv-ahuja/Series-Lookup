@@ -24,7 +24,7 @@ class App:
         """
 
         # path to the CSV file
-        db_path = "G:/Py/2021/MyProj/Series-Lookup/serie_db.csv"
+        db_path = "serie_db.csv"
 
         try:
             # check for the CSV file in the current working directory
