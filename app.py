@@ -2,14 +2,10 @@ from rich import print
 from rich.table import Table
 from rich.console import Console
 import csv
-from tmdbv3api import TMDb, TV
-from dotenv import load_dotenv
 import os
 from sys import exit
-import pandas
-from win10toast_persist import ToastNotifier
-from time import sleep
-from pathlib import Path
+from updates import *
+import config
 
 
 class App:
@@ -23,17 +19,14 @@ class App:
         Creates a CSV file to store data if it does not yet exist.
         """
 
-        # path to the CSV file
-        db_path = "serie_db.csv"
-
         try:
             # check for the CSV file in the current working directory
-            if not os.path.exists(db_path):
+            if not os.path.exists(db_file):
                 print("Creating database file (first time user)")
                 print("................................")
 
                 # a simple context manager execution as "w" will create the file for us
-                with open(db_path, "w") as file:
+                with open(db_file, "w") as file:
                     pass
 
                 print("Database created")
@@ -55,7 +48,11 @@ class App:
         print("Input 2 to view the shows stored in the local database")
         print("Input 3 to check for show updates.")
 
-        ask_input = int(input("Else, input 0 to quit the program: "))
+        try:
+            ask_input = int(input("Else, input 0 to quit the program: "))
+
+        except ValueError:
+            return -1
 
         return ask_input
 
@@ -182,8 +179,6 @@ class App:
         """
         This method saves the user-selected show to the CSV file."""
 
-        file_name = "G:/Py/2021/MyProj/Series-Lookup/serie_db.csv"
-
         # initializing the field titles
         fields = ["Show Name", "Seasons", "Show ID"]
         show_info = [show_name, season_count, show_id]
@@ -192,7 +187,7 @@ class App:
         header_check = False
         existing_data = False
 
-        with open(file_name, newline="") as file:
+        with open(db_file, newline="") as file:
             r = csv.reader(file, delimiter=",")
 
             for row in r:
@@ -210,7 +205,7 @@ class App:
 
         # we can start writing the data now that
         # our prelinimary checks are complete
-        with open(file_name, "a+", newline="") as file:
+        with open(db_file, "a+", newline="") as file:
             writer = csv.writer(file)
 
             # if header exists, we just need to write the show info
@@ -240,14 +235,12 @@ class DrawTable:
         Reads and extracts data from the CSV file and prepares it for output in a tabular form.
         """
 
-        file_name = "G:/Py/2021/MyProj/Series-Lookup/serie_db.csv"
-
-        if not os.path.getsize(file_name):
+        if not os.path.getsize(db_file):
             print("There is no saved data! Please save a show first before accessing!")
 
             return False
 
-        with open(file_name) as file:
+        with open(db_file) as file:
             reader = csv.reader(file, delimiter=",")
 
             # reading the first line to get the header
@@ -284,136 +277,13 @@ class DrawTable:
         console.print(table)
 
 
-class Updates:
-    def read_data(self):
-        """
-        Read the database and collect show information for further use by other methods.
-        """
-
-        self.file_name = "G:/Py/2021/MyProj/Series-Lookup/serie_db.csv"
-
-        # using os' "getsize" method to check if the user has saved any tv shows
-        check_for_db = os.path.getsize(self.file_name)
-
-        if not check_for_db:
-            # if the db file does not exist, print an error message and exit
-            print("There is no saved data! Please save a show first before accessing!")
-
-            return []
-
-        with open(self.file_name, "r+", newline="") as file:
-            reader = csv.reader(file)
-
-            # ignore the header
-            fields = next(reader)
-
-            shows_data = [info for info in reader]
-
-        return shows_data
-
-    def get_updates(self, shows_data):
-        """
-        Use the tmdb api to search for updates for the shows stored in the local database.
-        """
-
-        if shows_data == []:
-            print("There is no saved data! Please save a show first before accessing!")
-
-            return
-
-        new_seasons = []
-
-        for data in shows_data:
-            name = data[0]
-            curr_seasons = int(data[1])
-            tmdb_id = int(data[2])
-
-            try:
-                check_seasons = tv.details(tmdb_id)["number_of_seasons"]
-
-            except:
-                print("Please enter an API key first!")
-
-                return
-
-            # now, only push the check_update integer into the list if
-            # the show received an update, else scrape it
-            if check_seasons > curr_seasons:
-                new_seasons.append((name, check_seasons, tmdb_id))
-
-        return new_seasons
-
-    def update_db(self, new_seasons):
-        """
-        Update the data for the TV show(s) in the database if there has been an update.
-        """
-        if new_seasons == []:
-            return
-
-        db_path = "G:/Py/2021/MyProj/Series-Lookup/serie_db.csv"
-
-        # we'll use pandas to convert the csv to a dataframe, make needed changes and then convert it back
-        csv_df = pandas.read_csv(db_path)
-
-        for data in new_seasons:
-            name, seasons = data[0], data[1]
-
-            # using loc to specify what cell data to look for
-            # if show name == name in the list, then set the new season count
-            csv_df.loc[csv_df["Show Name"] == name, "Seasons"] = f"{str(seasons)}"
-
-        # write changes to the file
-        csv_df.to_csv(db_path, index=False)
-
-    def send_notification(self, new_seasons):
-        """
-        Send toast notifications to the user if there have been updates.
-        """
-
-        notifier = ToastNotifier()
-
-        if new_seasons == []:
-            notifier.show_toast("Overview", "No updates.", duration=None)
-
-            print()
-
-            return
-
-        count = 0
-
-        for data in new_seasons:
-
-            # duration=None makes the notification persist
-            notifier.show_toast(
-                "New Season Alert!",
-                f"The show {data[0]} has a new season!",
-                duration=None,
-            )
-
-            sleep(7)
-
-            count = count + 1
-
-        # send an overview notification
-        notifier.show_toast("Overview", f"{count} updates.", duration=None)
-
-
 if __name__ == "__main__":
-    # load environment variables
-    load_dotenv(dotenv_path="key.env")
-    api_key = os.getenv("API_KEY")
 
-    tmdb = TMDb()
+    tmdb = config.tmdb
 
-    # set api key
-    tmdb.api_key = api_key
-    # tmdb.api_key = "ENTER KEY HERE!"
+    db_file = config.db_file
 
-    # config
-    tmdb.language = "en"
-    tmdb.debug = True
-
-    tv = TV()
+    tv = config.tv
 
     # using a while loop here to keep executing the app
     # until the user decides to quit
@@ -432,6 +302,12 @@ if __name__ == "__main__":
             exit()
 
         init = app.welcome()
+
+        if init == -1:
+            print("Please enter a valid input!")
+
+            os.system("pause")
+            print()
 
         if init == 1:
 
@@ -462,19 +338,17 @@ if __name__ == "__main__":
             print()
 
         elif init == 3:
-            updates = Updates()
-            read_csv = updates.read_data()
+            check_upd = Updates()
+            read_csv = check_upd.read_data()
 
-            if read_csv == []:
-                pass
+            if read_csv != []:
 
-            else:
+                get_updates = check_upd.get_updates(read_csv)
 
-                get_updates = updates.get_updates(read_csv)
+                if get_updates is not None:
+                    save_updates = check_upd.update_db(get_updates)
 
-                save_updates = updates.update_db(get_updates)
-
-                notifier = updates.send_notification(get_updates)
+                    notifier = check_upd.send_notification(get_updates)
 
             os.system("pause")
             print()

@@ -8,6 +8,7 @@ tmdbv3api = "*"
 win10toast-persist = "*"
 pandas = "*"
 rich = "*"
+schedule = "*"
 
 [dev-packages]
 
