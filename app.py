@@ -328,6 +328,7 @@ if __name__ == "__main__":
         elif init == 2:
             table = DrawTable()
             get_data = table.get_data()
+
             # if get_data == False, no shows stored in the db
             try:
                 draw_table = table.make_table(*get_data)
