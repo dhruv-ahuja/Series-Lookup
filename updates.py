@@ -142,8 +142,13 @@ def main():
 
 if __name__ == "__main__":
 
+    print("Started Update Checker; will check for updates every half an hour.")
+
+    # check for an update initially
+    main()
+
     # implement the schedule library to emulate a cron job
-    schedule.every().hour.at("00:00").do(main)
+    schedule.every(30).minutes.do(main)
     while True:
         schedule.run_pending()
         sleep(2)
