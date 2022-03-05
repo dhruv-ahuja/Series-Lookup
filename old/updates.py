@@ -2,7 +2,7 @@ import os
 import csv
 import pandas
 import schedule
-import config
+import app.config as config
 from time import sleep
 from win10toast_persist import ToastNotifier
 

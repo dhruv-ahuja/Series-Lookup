@@ -1,5 +1,5 @@
 import sqlite3
-from config import db_file
+from app.config import db_file
 
 
 class Database:

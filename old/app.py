@@ -5,7 +5,7 @@ import csv
 import os
 from sys import exit
 from old.updates import *
-import config
+import app.config as config
 
 
 class App:
@@ -279,11 +279,11 @@ class DrawTable:
 
 if __name__ == "__main__":
 
-    tmdb = config.tmdb
+    tmdb = app.config.tmdb
 
-    db_file = config.db_file
+    db_file = app.config.db_file
 
-    tv = config.tv
+    tv = app.config.tv
 
     # using a while loop here to keep executing the app
     # until the user decides to quit
