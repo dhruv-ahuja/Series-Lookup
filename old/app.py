@@ -4,7 +4,7 @@ from rich.console import Console
 import csv
 import os
 from sys import exit
-from updates import *
+from old.updates import *
 import config
 
 
