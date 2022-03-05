@@ -5,7 +5,7 @@ import csv
 import os
 from sys import exit
 from old.updates import *
-import app.config as config
+import series_lookup.config as config
 
 
 class App:
