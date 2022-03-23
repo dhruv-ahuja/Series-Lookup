@@ -1,3 +1,5 @@
+import sys
+
 import series_lookup.exceptions as exceptions
 
 
@@ -10,7 +12,16 @@ class Application:
     def __call__(self):
 
         self.prerun_checks()
-        self.welcome()
+        user_choice = self.welcome()
+
+        if user_choice == 0:
+            # user wishes to quit
+            sys.exit()
+
+        if user_choice == 1:
+            # user wishes to save a show to db
+            search_results = self.search_for_show()
+            result_index = self.process_results(search_results)
 
     def prerun_checks(self):
         """
@@ -52,14 +63,14 @@ using the application."
         valid_input = False
 
         while not valid_input:
-            ask_input = input("Enter your choice: ")
+            ask_input = int(input("Enter your choice: "))
 
-            if int(ask_input) in input_choices:
+            if ask_input in input_choices:
                 valid_input = True
             else:
                 print("Invalid choice! Please try again.")
 
-        return int(ask_input)
+        return ask_input
 
     def search_for_show(self) -> list:
         """
@@ -88,3 +99,25 @@ to go back: "
             search_results = search_results[:8]
 
         return search_results
+
+    def process_results(self, search_results) -> dict:
+        """
+        Prints the search results to the user and map them in a dictionary.
+        """
+
+        print("Showing the most relevant fetched results.\n")
+
+        result_index = {}
+
+        for i, show in enumerate(search_results):
+            # search_results is a list of tv show objects
+            # map the shows
+            result_index[i + 1] = show
+
+            # print the show name, year of origin, country of origin(given to us in list form)
+            print(
+                f"{i+1}. {show['name']}, {show['first_air_date'][:4]}, \
+{show['origin_country'][0]}"
+            )
+
+        return result_index
