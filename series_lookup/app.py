@@ -121,3 +121,50 @@ to go back: "
             )
 
         return result_index
+
+    def get_users_choice(self, result_index) -> list:
+        """
+        Get the users' choice of their desired TV show from the fetched results
+        and get required information for the same.
+        """
+
+        valid_choice = False
+
+        print(
+            "Input a number to select the show of your choice. \
+Your choice will then be saved in the local database."
+        )
+
+        while not valid_choice:
+            # giving users the option to go back as well
+            if len(result_index) > 1:
+                ask_choice = int(
+                    input(
+                        f"Enter a no. between 1 and {len(result_index)}, enter 0 to go back: "
+                    )
+                )
+
+            else:
+                ask_choice = int(
+                    input(
+                        "Enter 1 if you want to select the show, enter 0 to go back: "
+                    )
+                )
+
+            if not ask_choice:
+                return []
+
+            valid_choice = True if result_index[ask_choice] else False
+
+        show_info = result_index[ask_choice]
+
+        # the format is a dict in a list
+        show_info = show_info[0]
+
+        # we need show id to get the season count
+        show_name, show_id = show_info["name"], show_info["id"]
+
+        # searching for the show by using the "tv" object gives us a nested dict
+        season_count = self.tv.details(show_id)["number_of_seasons"]
+
+        return [show_id, show_name, season_count]
