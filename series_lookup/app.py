@@ -22,6 +22,13 @@ class Application:
             # user wishes to save a show to db
             search_results = self.search_for_show()
             result_index = self.process_results(search_results)
+            users_choice = self.get_users_choice(result_index)
+
+            if not users_choice:
+                # user wishes to quit
+                sys.exit()
+
+            show_id, show_name, season_count = users_choice
 
     def prerun_checks(self):
         """
@@ -157,9 +164,6 @@ Your choice will then be saved in the local database."
             valid_choice = True if result_index[ask_choice] else False
 
         show_info = result_index[ask_choice]
-
-        # the format is a dict in a list
-        show_info = show_info[0]
 
         # we need show id to get the season count
         show_name, show_id = show_info["name"], show_info["id"]
