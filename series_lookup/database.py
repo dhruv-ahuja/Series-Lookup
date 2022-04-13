@@ -1,8 +1,7 @@
 import sqlite3
-from config import db_file
 
 
-class Database:
+class ContextManager:
     """
     Context manager to make interacting with the database easier.
 
@@ -10,11 +9,12 @@ class Database:
     when performing database-related operations.
     """
 
-    def __init__(self):
-        self.file = db_file
+    def __init__(self, db_path):
+        # file is our db file
+        self.db_path = db_path
 
     def __enter__(self):
-        self.conn = sqlite3.connect(self.file)
+        self.conn = sqlite3.connect(self.db_path)
         self.cursor = self.conn.cursor
 
         # we won't be able to use any of the context manager's methods in the

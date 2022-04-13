@@ -7,7 +7,7 @@ import os
 
 load_dotenv(dotenv_path="./key.env")
 
-db_file = "serie_db.db"
+db_path = "serie_db.db"
 api_key = os.getenv("API_KEY")
 
 # initialize tmdb
