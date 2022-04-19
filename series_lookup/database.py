@@ -28,7 +28,10 @@ class ContextManager:
         self.conn.close()
 
 
+# make_table is a helper function, to be run during the pre-run check
+# ensuring that the "show_data" table to be used to store data exists
 def make_table(db_path: str) -> bool:
+
     query = """
     CREATE TABLE IF NOT EXISTS show_data(
         id integer PRIMARY KEY, 
