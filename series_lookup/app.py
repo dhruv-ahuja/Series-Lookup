@@ -1,6 +1,11 @@
 import sys
+import os
+
+import sqlite3
 
 import series_lookup.exceptions as exceptions
+from series_lookup.database import ContextManager, make_table
+from series_lookup.config import db_path
 
 
 class Application:
@@ -21,14 +26,27 @@ class Application:
         if user_choice == 1:
             # user wishes to save a show to db
             search_results = self.search_for_show()
-            result_index = self.process_results(search_results)
-            users_choice = self.get_users_choice(result_index)
 
-            if not users_choice:
-                # user wishes to quit
-                sys.exit()
+            if not search_results:
+                # user wishes to go back
+                self.go_to_main_screen()
 
-            show_id, show_name, season_count = users_choice
+            else:
+                result_index = self.process_results(search_results)
+                show_data = self.get_users_choice(result_index)
+
+                if not show_data:
+                    # user wishes to go back
+                    self.go_to_main_screen()
+
+                else:
+                    self.save_show_data(show_data)
+
+                    # initiating a pause
+                    os.system("pause")
+
+                    # re-run the loop from the beginning
+                    self.__call__()
 
     def prerun_checks(self):
         """
@@ -42,6 +60,12 @@ class Application:
                 "You have not set a TMDB API Key! Please do so before \
 using the application."
             )
+
+        # run the table maker function
+        is_table = make_table(db_path)
+
+    def go_to_main_screen(self):
+        return self.__call__()
 
     def check_api_key(self) -> bool:
         """
@@ -92,7 +116,7 @@ using the application."
 to go back: "
             )
             if search_term == "0":
-                return None
+                return []
 
             search_results = self.tv.search(search_term)
 
@@ -107,7 +131,7 @@ to go back: "
 
         return search_results
 
-    def process_results(self, search_results) -> dict:
+    def process_results(self, search_results: list) -> dict:
         """
         Prints the search results to the user and map them in a dictionary.
         """
@@ -129,7 +153,7 @@ to go back: "
 
         return result_index
 
-    def get_users_choice(self, result_index) -> list:
+    def get_users_choice(self, result_index: dict) -> tuple:
         """
         Get the users' choice of their desired TV show from the fetched results
         and get required information for the same.
@@ -171,4 +195,21 @@ Your choice will then be saved in the local database."
         # searching for the show by using the "tv" object gives us a nested dict
         season_count = self.tv.details(show_id)["number_of_seasons"]
 
-        return [show_id, show_name, season_count]
+        return show_name, season_count
+
+    def save_show_data(self, show_data: tuple):
+        """
+        Save the show data to the database.
+        """
+
+        query = "INSERT INTO show_data (name, seasons) VALUES (?, ?)"
+
+        with ContextManager(db_path) as db:
+            try:
+                db.cursor.execute(query, show_data)
+                db.conn.commit()
+            except sqlite3.Error as e:
+                print("error while trying to save show to database", e)
+
+            else:
+                print(f"Successfully saved {show_data[0]} to the database!")
