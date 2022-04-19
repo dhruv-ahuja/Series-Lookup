@@ -146,6 +146,12 @@ to go back: "
             result_index[i + 1] = show
 
             # print the show name, year of origin, country of origin(given to us in list form)
+            if not show["origin_country"]:
+                show["origin_country"].append("N/A")
+
+            if not show["first_air_date"]:
+                show["first_air_date"] = "N/A"
+
             print(
                 f"{i+1}. {show['name']}, {show['first_air_date'][:4]}, \
 {show['origin_country'][0]}"
