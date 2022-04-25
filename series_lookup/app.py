@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Tuple
+from typing import List, Tuple
 
 import sqlite3
 
@@ -69,7 +69,7 @@ def get_user_intent() -> int:
     return ask_input
 
 
-def search_for_show(tv) -> list:
+def search_for_show(tv) -> List:
     """
     Look for the user-entered search term and return the results.
     """
@@ -98,7 +98,7 @@ to go back: "
     return search_results
 
 
-def process_results(search_results: list) -> Tuple[dict, int]:
+def process_results(search_results: List) -> Tuple[dict, int]:
     """
     Prints the search results in an appropriate format and maps them in a dictionary.
     """
@@ -190,11 +190,11 @@ def save_to_db(db_path: str, show: Show):
 
 def get_show(db_path: str, show_name: str) -> Tuple[int, sqlite3.Error]:
     """
-    Helper function to check for the existence of a particular TV Show
+    Check for the existence of a particular TV Show
     in the database.
     """
 
-    query = "SELECT (seasons) FROM show_data WHERE name=?;"
+    query = "SELECT seasons FROM show_data WHERE name=?;"
 
     with database.ContextManager(db_path) as db:
         try:
@@ -204,3 +204,26 @@ def get_show(db_path: str, show_name: str) -> Tuple[int, sqlite3.Error]:
         else:
             seasons = db.cursor.fetchone()
             return (seasons, None)
+
+
+def get_shows(db_path: str) -> Tuple[List[Show], sqlite3.Error]:
+    """
+    Get a list of all the shows saved in the database.
+    """
+
+    shows: List[Show] = []
+
+    query = "SELECT name, seasons FROM show_data;"
+
+    with database.ContextManager(db_path) as db:
+        try:
+            db.cursor.execute(query)
+        except sqlite3.Error as e:
+            return ([], e)
+        else:
+            fetched_data = db.cursor.fetchall()
+
+    for entry in fetched_data:
+        shows.append(Show(entry[0], entry[1]))
+
+    return (shows, None)
