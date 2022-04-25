@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import List, Tuple
 
 import sqlite3
 
@@ -21,6 +21,24 @@ def cleanup_db_connection(conn: sqlite3.Connection):
     conn.close()
 
 
+def execute_query(conn: sqlite3.Connection, query: str, args: List = []) -> bool:
+    """
+    Helper function to run queries against the database.
+    """
+
+    try:
+        cursor = conn.cursor()
+        cursor.execute(query) if not args else cursor.execute(query, args)
+        conn.commit()
+    except sqlite3.Error as e:
+        print("Error executing query: ", e)
+        return False
+    else:
+        return True
+    finally:
+        cursor.close()
+
+
 # make_table is to be run during the pre-run check
 def make_table(conn: sqlite3.Connection):
     """
@@ -36,10 +54,4 @@ def make_table(conn: sqlite3.Connection):
     );
     """
 
-    try:
-        cursor = conn.cursor()
-        cursor.execute(query)
-    except sqlite3.Error as e:
-        print(e)
-    finally:
-        cursor.close()
+    execute_query(conn, query)
