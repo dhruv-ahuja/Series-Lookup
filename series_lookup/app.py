@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Tuple
 
 import sqlite3
@@ -5,6 +6,14 @@ import sqlite3
 import series_lookup.exceptions as exceptions
 import series_lookup.database as database
 from series_lookup.config import db_path
+
+
+# the dataclass to be used to store the show data when successfully collected
+# from the functions
+@dataclass
+class Show:
+    name: str
+    seasons: int
 
 
 def check_api_key(tmdb) -> bool:
@@ -161,24 +170,19 @@ def get_show_info(users_choice: int, result_index: dict, tv) -> Tuple[str, int]:
     return (show_name, seasons)
 
 
-class Show:
-    def __init__(self, name: str, seasons: int):
-        self.name = name
-        self.seasons = seasons
+def save_to_db(db_path: str, show: Show):
+    """
+    Save the show to the database.
+    """
 
-    def save_to_db(self):
-        """
-        Save the show to the database.
-        """
+    query = "INSERT INTO show_data (name, seasons) VALUES (?, ?)"
 
-        query = "INSERT INTO show_data (name, seasons) VALUES (?, ?)"
+    with database.ContextManager(db_path) as db:
+        try:
+            db.cursor.execute(query, [show.name, show.seasons])
+            db.conn.commit()
+        except sqlite3.Error as e:
+            print("error while trying to save show to database", e)
 
-        with database.ContextManager(db_path) as db:
-            try:
-                db.cursor.execute(query, [self.name, self.seasons])
-                db.conn.commit()
-            except sqlite3.Error as e:
-                print("error while trying to save show to database", e)
-
-            else:
-                print(f"Successfully saved {self.name} to the database!\n")
+        else:
+            print(f"Successfully saved {show.name} to the database!\n")
