@@ -182,7 +182,25 @@ def save_to_db(db_path: str, show: Show):
             db.cursor.execute(query, [show.name, show.seasons])
             db.conn.commit()
         except sqlite3.Error as e:
-            print("error while trying to save show to database", e)
+            raise exceptions.DatabaseError(e)
 
         else:
             print(f"Successfully saved {show.name} to the database!\n")
+
+
+def get_show(db_path: str, show_name: str) -> Tuple[int, sqlite3.Error]:
+    """
+    Helper function to check for the existence of a particular TV Show
+    in the database.
+    """
+
+    query = "SELECT (seasons) FROM show_data WHERE name=?;"
+
+    with database.ContextManager(db_path) as db:
+        try:
+            db.cursor.execute(query, [show_name])
+        except sqlite3.Error as e:
+            return (0, e)
+        else:
+            seasons = db.cursor.fetchone()
+            return (seasons, None)

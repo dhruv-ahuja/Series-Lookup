@@ -28,15 +28,17 @@ class ContextManager:
         self.conn.close()
 
 
-# make_table is a helper function, to be run during the pre-run check
-# ensuring that the "show_data" table to be used to store data exists
-def make_table(db_path: str) -> bool:
+# make_table is to be run during the pre-run check
+def make_table(db_path: str) -> sqlite3.Error:
+    """
+    Creates the "show_data" table to be used for storing the app's data if it doesn't yet exist.
+    """
 
     query = """
     CREATE TABLE IF NOT EXISTS show_data(
         id integer PRIMARY KEY, 
-        name text NOT NULL, 
-        seasons integer NOT NULL
+        name text NOT NULL UNIQUE, 
+        seasons integer NOT NULL UNIQUE
     );
     """
 
@@ -44,7 +46,6 @@ def make_table(db_path: str) -> bool:
         try:
             db.cursor.execute(query)
         except sqlite3.Error as e:
-            print("error while trying to make table: ", e)
-            return False
+            return e
         else:
-            return True
+            return None
