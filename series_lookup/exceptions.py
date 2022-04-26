@@ -4,11 +4,3 @@ class NoAPIKeyError(Exception):
     """
 
     ...
-
-
-class DatabaseError(Exception):
-    """
-    Exception raised when error encountered during database operations.
-    """
-
-    ...
