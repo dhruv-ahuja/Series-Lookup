@@ -23,7 +23,8 @@ def cleanup_db_connection(conn: sqlite3.Connection):
 
 def execute_query(conn: sqlite3.Connection, query: str, args: List = []) -> bool:
     """
-    Helper function to run queries against the database.
+    Helper function to run queries that don't require fetching data,
+    against the database.
     """
 
     try:
@@ -35,6 +36,7 @@ def execute_query(conn: sqlite3.Connection, query: str, args: List = []) -> bool
         return False
     else:
         return True
+    # this is executed regardless of whether we return something or not!
     finally:
         cursor.close()
 
@@ -50,7 +52,7 @@ def make_table(conn: sqlite3.Connection):
     CREATE TABLE IF NOT EXISTS show_data(
         id integer PRIMARY KEY, 
         name text NOT NULL UNIQUE, 
-        seasons integer NOT NULL UNIQUE
+        seasons integer NOT NULL
     );
     """
 
