@@ -3,6 +3,8 @@ from typing import List, Tuple
 
 import sqlite3
 import tmdbv3api
+from rich.table import Table
+from rich.console import Console
 
 import series_lookup.exceptions as exceptions
 import series_lookup.database as db
@@ -169,3 +171,33 @@ def get_show_info(
     seasons = tv.details(show_id)["number_of_seasons"]
 
     return (show_name, seasons)
+
+
+# we will send the queried show list from the db to this function
+def draw_table(shows: List[Show]):
+    """
+    Presents the fetched show data from the database in a tabular form
+    to the user.
+    """
+
+    table = Table(show_header=True, header_style="bold magenta")
+    console = Console()
+
+    # adding header columns to the table
+    table.add_column(
+        "Show Name",
+        style="bold yellow",
+        justify="center",
+        width=18,
+    )
+
+    table.add_column(
+        "Seasons",
+        style="bold green",
+        justify="center",
+    )
+
+    for show in shows:
+        table.add_row(show.name, str(show.seasons))
+
+    console.print(table)
