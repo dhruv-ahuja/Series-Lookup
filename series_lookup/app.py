@@ -2,10 +2,11 @@ from dataclasses import dataclass
 from typing import List, Tuple
 
 import sqlite3
+import tmdbv3api
 
 import series_lookup.exceptions as exceptions
-import series_lookup.database as database
-from series_lookup.config import db_path
+import series_lookup.database as db
+import series_lookup.config as config
 
 
 # the dataclass to be used to store the show data when successfully collected
@@ -24,13 +25,13 @@ def check_api_key(tmdb) -> bool:
     return False if not tmdb.api_key or "" else True
 
 
-def prerun_checks():
+def prerun_checks(conn: sqlite3.Connection, tmdb: tmdbv3api.TMDb):
     """
     Executes all necessary methods before the main application
     logic is run.
     """
 
-    api_key_exists = check_api_key()
+    api_key_exists = check_api_key(tmdb)
     if not api_key_exists:
         raise exceptions.NoAPIKeyError(
             "You have not set a TMDB API Key! Please do so before \
@@ -38,10 +39,7 @@ using the application."
         )
 
     # run the table maker function
-    err = database.make_table(db_path)
-    if err:
-        # supplying the error message received during the query operation to our custom exception
-        raise exceptions.DatabaseError(err)
+    db.make_table(conn)
 
 
 def get_user_intent() -> int:
@@ -69,7 +67,7 @@ def get_user_intent() -> int:
     return ask_input
 
 
-def search_for_show(tv) -> List:
+def search_for_show(tv: tmdbv3api.TV) -> List:
     """
     Look for the user-entered search term and return the results.
     """
@@ -157,8 +155,11 @@ Your choice will then be saved in the local database."
         return users_choice
 
 
-def get_show_info(users_choice: int, result_index: dict, tv) -> Tuple[str, int]:
+def get_show_info(
+    users_choice: int, result_index: dict, tv: tmdbv3api.TV
+) -> Tuple[str, int]:
 
+    # select the users' choice from the earlier fetched dictionary
     show_info = result_index[users_choice]
 
     # we need show id to get the season count
