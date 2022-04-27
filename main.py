@@ -1,10 +1,14 @@
-import series_lookup.app as app
 import series_lookup.config as config
 import series_lookup.database as db
 
+from series_lookup.controller import controller
+
 
 def main():
-    ...
+    conn = db.connect_to_db(config.db_path)
+
+    while True:
+        controller(conn, config.tmdb, config.tv)
 
 
 if __name__ == "__main__":
