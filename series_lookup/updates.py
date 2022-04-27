@@ -43,7 +43,7 @@ def send_update_notification(shows_with_updates: List[app.Show]):
 
     for show in shows_with_updates:
         notif.message = (
-            f"{show.name}'s season {show.seasons} is now airing. Check it out!"
+            f"season {show.seasons} of {show.name} is now airing. Check it out!"
         )
         notif.send()
         sleep(1)
