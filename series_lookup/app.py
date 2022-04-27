@@ -157,9 +157,7 @@ Your choice will then be saved in the local database."
         return users_choice
 
 
-def get_show_info(
-    users_choice: int, result_index: dict, tv: tmdbv3api.TV
-) -> Tuple[str, int, int]:
+def get_show_info(users_choice: int, result_index: dict, tv: tmdbv3api.TV) -> Show:
 
     # select the users' choice from the earlier fetched dictionary
     show_info = result_index[users_choice]
@@ -170,7 +168,9 @@ def get_show_info(
     # searching for the show by using the "tv" object gives us a nested dict
     seasons = tv.details(show_id)["number_of_seasons"]
 
-    return (show_name, seasons, show_id)
+    show = Show(show_name, seasons, show_id)
+
+    return show
 
 
 # we will send the queried show list from the db to this function
