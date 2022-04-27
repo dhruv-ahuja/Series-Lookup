@@ -200,6 +200,6 @@ def draw_table(shows: List[Show]):
     table.add_column("Show ID", style="bold purple", justify="center")
 
     for show in shows:
-        table.add_row(show.name, str(show.seasons))
+        table.add_row(show.name, str(show.seasons), str(show.show_id))
 
     console.print(table)

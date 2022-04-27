@@ -52,7 +52,8 @@ def make_table(conn: sqlite3.Connection):
     CREATE TABLE IF NOT EXISTS show_data(
         id integer PRIMARY KEY, 
         name text NOT NULL UNIQUE, 
-        seasons integer NOT NULL
+        seasons integer NOT NULL,
+        show_id integer NOT NULL UNIQUE
     );
     """
 

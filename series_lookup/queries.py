@@ -1,6 +1,6 @@
 # all functions that query data to and from the database
 
-from typing import List
+from typing import List, Tuple
 
 import sqlite3
 
@@ -13,20 +13,20 @@ def save_to_db(conn: sqlite3.Connection, show: Show):
     Save the show to the database.
     """
 
-    query = "INSERT INTO show_data (name, seasons) VALUES (?, ?)"
+    query = "INSERT INTO show_data (name, seasons, show_id) VALUES (?, ?, ?)"
 
-    saved = db.execute_query(conn, query, [show.name, show.seasons])
+    saved = db.execute_query(conn, query, [show.name, show.seasons, show.show_id])
     if saved:
         print(f"Successfully saved {show.name} to the database!\n")
 
 
-def get_show(conn: sqlite3.Connection, show_name: str) -> int:
+def get_show(conn: sqlite3.Connection, show_name: str) -> Tuple[int, int]:
     """
     Check for the existence of a particular TV Show
     in the database.
     """
 
-    query = "SELECT seasons FROM show_data WHERE name=?;"
+    query = "SELECT seasons, show_id FROM show_data WHERE name=?;"
 
     try:
         cursor = conn.cursor()
@@ -37,8 +37,8 @@ def get_show(conn: sqlite3.Connection, show_name: str) -> int:
         seasons = cursor.fetchone()
     finally:
         cursor.close()
-        # data from the db is queried within tuples, we only need the integer
-        return seasons[0] if seasons else None
+
+        return seasons if seasons else None
 
 
 def get_shows(conn: sqlite3.Connection) -> List[Show]:
@@ -48,7 +48,7 @@ def get_shows(conn: sqlite3.Connection) -> List[Show]:
 
     shows: List[Show] = []
 
-    query = "SELECT name, seasons FROM show_data;"
+    query = "SELECT name, seasons, show_id FROM show_data;"
 
     try:
         cursor = conn.cursor()
@@ -61,6 +61,6 @@ def get_shows(conn: sqlite3.Connection) -> List[Show]:
         cursor.close()
 
     for entry in fetched_data:
-        shows.append(Show(entry[0], entry[1]))
+        shows.append(Show(entry[0], entry[1], entry[2]))
 
     return shows
