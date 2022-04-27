@@ -64,3 +64,63 @@ def get_shows(conn: sqlite3.Connection) -> List[Show]:
         shows.append(Show(entry[0], entry[1], entry[2]))
 
     return shows
+
+
+def rollback_transaction(cursor: sqlite3.Cursor, e: sqlite3.Error = None):
+    """
+    Helper function to handle the transaction rollback procedure.
+    """
+
+    if not e:
+        print("Error updating show season count")
+    else:
+        print("Error updating show season count:", e)
+
+    print("Rolling back transaction... ")
+
+    cursor.execute("ROLLBACK;")
+    cursor.close()
+
+
+def update_shows(conn: sqlite3.Connection, shows_with_updates: List[Show]) -> bool:
+    """
+    Update all shows that have received a new season.
+    """
+
+    query = "UPDATE show_data SET seasons=? WHERE name=? RETURNING *;"
+
+    cursor = conn.cursor()
+
+    # begin transaction
+    cursor.execute("BEGIN TRANSACTION;")
+
+    success = True
+
+    # execute the update query for all shows in the list
+    for show in shows_with_updates:
+
+        try:
+            cursor.execute(query, [show.seasons, show.name])
+        except sqlite3.Error as e:
+            rollback_transaction(cursor, e)
+            success = False
+        else:
+            # generally, update statements don't directly indicate an error
+            # we have to compare the returning data from the query
+            # and check for ourselves
+            i = cursor.fetchone()
+            if not i:
+                rollback_transaction(cursor)
+                success = False
+
+        # if any previous query has failed, for whatever reason, no need to
+        # continue the process
+        if not success:
+            break
+
+    # if all queries are executed successfully, commit the transaction
+    if success:
+        cursor.execute("COMMIT;")
+        cursor.close()
+
+    return success
