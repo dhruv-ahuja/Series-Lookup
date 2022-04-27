@@ -8,7 +8,6 @@ from rich.console import Console
 
 import series_lookup.exceptions as exceptions
 import series_lookup.database as db
-import series_lookup.config as config
 
 
 # the dataclass to be used to store the show data when successfully collected
@@ -17,6 +16,7 @@ import series_lookup.config as config
 class Show:
     name: str
     seasons: int
+    show_id: int
 
 
 def check_api_key(tmdb) -> bool:
@@ -159,7 +159,7 @@ Your choice will then be saved in the local database."
 
 def get_show_info(
     users_choice: int, result_index: dict, tv: tmdbv3api.TV
-) -> Tuple[str, int]:
+) -> Tuple[str, int, int]:
 
     # select the users' choice from the earlier fetched dictionary
     show_info = result_index[users_choice]
@@ -170,7 +170,7 @@ def get_show_info(
     # searching for the show by using the "tv" object gives us a nested dict
     seasons = tv.details(show_id)["number_of_seasons"]
 
-    return (show_name, seasons)
+    return (show_name, seasons, show_id)
 
 
 # we will send the queried show list from the db to this function
@@ -196,6 +196,8 @@ def draw_table(shows: List[Show]):
         style="bold green",
         justify="center",
     )
+
+    table.add_column("Show ID", style="bold purple", justify="center")
 
     for show in shows:
         table.add_row(show.name, str(show.seasons))
