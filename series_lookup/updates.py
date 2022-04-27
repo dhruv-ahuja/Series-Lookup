@@ -1,6 +1,8 @@
 from typing import List
+from time import sleep
 
 import tmdbv3api
+from notifypy import Notify
 
 import series_lookup.app as app
 
@@ -35,5 +37,13 @@ def send_update_notification(shows_with_updates: List[app.Show]):
     Send notifications to the user if there have been any updates to the shows.
     """
 
+    notif = Notify()
+    notif.application_name = "Series-Lookup"
+    notif.title = "New Show Update!"
+
     for show in shows_with_updates:
-        print(f"{show.name}'s season {show.seasons} is now airing. Check it out!")
+        notif.message = (
+            f"{show.name}'s season {show.seasons} is now airing. Check it out!"
+        )
+        notif.send()
+        sleep(1)
