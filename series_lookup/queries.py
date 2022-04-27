@@ -34,11 +34,11 @@ def get_show(conn: sqlite3.Connection, show_name: str) -> Tuple[int, int]:
     except sqlite3.Error as e:
         print(f"Error fetching {show_name} data: ", e)
     else:
-        seasons = cursor.fetchone()
+        show_data = cursor.fetchone()
     finally:
         cursor.close()
 
-        return seasons if seasons else None
+        return show_data if show_data else None
 
 
 def get_shows(conn: sqlite3.Connection) -> List[Show]:

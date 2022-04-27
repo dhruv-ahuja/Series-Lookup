@@ -53,15 +53,22 @@ def controller(conn: sqlite3.Connection, tmdb: tmdbv3api.TMDb, tv: tmdbv3api.TV)
             controller(conn, tmdb, tv)
 
         # this is the user selected show to be saved into the db
-        show = app.get_show_info(users_choice, show_index, config.tv)
+        show = app.get_show_info(users_choice, show_index, tv)
 
-        # now, to send the show to be saved into the db
-        saved = queries.save_show(conn, show)
+        # check whether the show exists in the db already or not
+        _, show_id = queries.get_show(conn, show.name)
 
-        if saved:
-            print(f"Successfully saved {show.name} to the database!")
+        if show_id != show.show_id:
+            # now, to send the show to be saved into the db
+            saved = queries.save_show(conn, show)
+
+            if saved:
+                print(f"Successfully saved {show.name} to the database!")
+            else:
+                print(f"Unable to save {show.name} to the database.")
+
         else:
-            print(f"Unable to save {show.name} to the database.")
+            print(f"{show.name} already exists in the database!")
 
         print("Going back to the main screen...")
         input("Press ENTER to continue...")
