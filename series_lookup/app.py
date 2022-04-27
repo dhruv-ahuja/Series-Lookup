@@ -50,7 +50,7 @@ def get_user_intent() -> int:
     """
     input_choices = {0, 1, 2, 3}
 
-    print("Hello, what would you like to do?")
+    print("\nHello, what would you like to do?")
     print("Input 1 to enter a TV show into the local database.")
     print("Input 2 to view the shows stored in the local database")
     print("Input 3 to check for show updates.")
