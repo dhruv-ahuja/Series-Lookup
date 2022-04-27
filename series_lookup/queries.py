@@ -8,7 +8,7 @@ from series_lookup.app import Show
 import series_lookup.database as db
 
 
-def save_to_db(conn: sqlite3.Connection, show: Show):
+def save_show(conn: sqlite3.Connection, show: Show):
     """
     Save the show to the database.
     """
@@ -16,8 +16,8 @@ def save_to_db(conn: sqlite3.Connection, show: Show):
     query = "INSERT INTO show_data (name, seasons, show_id) VALUES (?, ?, ?)"
 
     saved = db.execute_query(conn, query, [show.name, show.seasons, show.show_id])
-    if saved:
-        print(f"Successfully saved {show.name} to the database!\n")
+
+    return saved
 
 
 def get_show(conn: sqlite3.Connection, show_name: str) -> Tuple[int, int]:

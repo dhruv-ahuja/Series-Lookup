@@ -16,11 +16,6 @@ def connect_to_db(db_path: str) -> sqlite3.Connection:
         return conn
 
 
-# function to be used at the end of the application's execution
-def cleanup_db_connection(conn: sqlite3.Connection):
-    conn.close()
-
-
 def execute_query(conn: sqlite3.Connection, query: str, args: List = []) -> bool:
     """
     Helper function to run queries that don't require fetching data,

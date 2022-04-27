@@ -41,9 +41,13 @@ def send_update_notification(shows_with_updates: List[app.Show]):
     notif.application_name = "Series-Lookup"
     notif.title = "New Show Update!"
 
-    for show in shows_with_updates:
-        notif.message = (
-            f"season {show.seasons} of {show.name} is now airing. Check it out!"
-        )
-        notif.send()
-        sleep(1)
+    if not shows_with_updates:
+        print("All shows are up-to-date.")
+
+    else:
+        for show in shows_with_updates:
+            notif.message = (
+                f"season {show.seasons} of {show.name} is now airing. Check it out!"
+            )
+            notif.send()
+            sleep(1)
