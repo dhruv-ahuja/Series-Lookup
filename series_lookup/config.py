@@ -5,7 +5,7 @@ from tmdbv3api import TMDb, TV
 import os
 
 
-load_dotenv(dotenv_path="./key.env")
+load_dotenv()
 
 db_path = "serie_db.db"
 api_key = os.getenv("API_KEY")

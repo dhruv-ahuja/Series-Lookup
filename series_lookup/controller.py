@@ -36,7 +36,7 @@ def controller(conn: sqlite3.Connection, tmdb: tmdbv3api.TMDb, tv: tmdbv3api.TV)
         # return to the start menu
         if not search_results:
             # this will act as a pause for the user
-            print("Going back to the main screen...")
+            print("\nGoing back to the main screen...")
             input("Press ENTER to continue...")
 
             controller(conn, tmdb, tv)
@@ -70,9 +70,9 @@ def controller(conn: sqlite3.Connection, tmdb: tmdbv3api.TMDb, tv: tmdbv3api.TV)
                 print(f"Unable to save {show.name} to the database.")
 
         else:
-            print(f"{show.name} already exists in the database!")
+            print(f"\n{show.name} already exists in the database!")
 
-        print("Going back to the main screen...")
+        print("\nGoing back to the main screen...")
         input("Press ENTER to continue...")
 
     elif user_intent == 2:
@@ -84,7 +84,7 @@ def controller(conn: sqlite3.Connection, tmdb: tmdbv3api.TMDb, tv: tmdbv3api.TV)
         # now, draw the tables to represent the data beautifully
         app.draw_table(shows_list)
 
-        print("Going back to the main screen...")
+        print("\nGoing back to the main screen...")
         input("Press ENTER to continue...")
 
     elif user_intent == 3:
@@ -97,7 +97,7 @@ def controller(conn: sqlite3.Connection, tmdb: tmdbv3api.TMDb, tv: tmdbv3api.TV)
         # send push notifications for all shows with new seasons
         upd.send_update_notification(shows_with_updates)
 
-        print("Going back to the main screen...")
+        print("\nGoing back to the main screen...")
         input("Press ENTER to continue...")
 
     else:
@@ -145,6 +145,6 @@ def cleanup(conn: sqlite3.Connection):
     """
 
     conn.close()
-    print("exiting...")
+    print("\nexiting...")
     input("Press ENTER to continue...")
     sys.exit()
