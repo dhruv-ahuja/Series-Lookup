@@ -1,9 +1,11 @@
 # controller handles all the execution process for the application
 
 import sys
+from time import sleep
 
 import sqlite3
 import tmdbv3api
+import schedule
 
 import series_lookup.app as app
 import series_lookup.queries as queries
@@ -85,18 +87,56 @@ def controller(conn: sqlite3.Connection, tmdb: tmdbv3api.TMDb, tv: tmdbv3api.TV)
         print("Going back to the main screen...")
         input("Press ENTER to continue...")
 
-    else:
+    elif user_intent == 3:
         # input 3, check for show updates
 
-        # send all the stores in the db to be checked for updates
+        # send all the shows in the db to be checked for updates
         shows_list = queries.get_shows(conn)
         shows_with_updates = upd.check_updates(tv, shows_list)
 
-        # push notifications for all shows with new seasons
+        # send push notifications for all shows with new seasons
         upd.send_update_notification(shows_with_updates)
 
         print("Going back to the main screen...")
         input("Press ENTER to continue...")
+
+    else:
+        # run as update-checker script
+        print(
+            "Started Update Checker. It will check for show updates/new seasons\
+ every 30 mins."
+        )
+
+        update_checker_controller(conn, tmdb, tv)
+
+        # implement the scheduler
+        schedule.every(30).minutes.do(update_checker_controller)
+
+        while True:
+            schedule.run_pending()
+            sleep(2)
+
+
+# this function will help the module be run as a long-running script
+# to check for show updates, like a cron job
+def update_checker_controller(
+    conn: sqlite3.Connection, tmdb: tmdbv3api.TMDb, tv: tmdbv3api.TV
+):
+    """
+    Handles the script execution flow. The functions to check for updates
+    here are run after a fixed interval of time, like a cron job would.
+    """
+
+    app.prerun_checks(conn, tmdb)
+
+    # query for all the shows in the db
+    shows_list = queries.get_shows(conn)
+
+    # now, check which of these shows have new seasons/updates
+    shows_with_updates = upd.check_updates(tv, shows_list)
+
+    # send push notifications for all shows with new seasons
+    upd.send_update_notification(shows_with_updates)
 
 
 def cleanup(conn: sqlite3.Connection):

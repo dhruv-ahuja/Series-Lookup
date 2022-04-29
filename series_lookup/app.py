@@ -48,12 +48,13 @@ def get_user_intent() -> int:
     """
     The main interface of the app. Shows a list of options to the user and takes their input.
     """
-    input_choices = {0, 1, 2, 3}
+    input_choices = {0, 1, 2, 3, 4}
 
     print("\nHello, what would you like to do?")
     print("Input 1 to enter a TV show into the local database.")
     print("Input 2 to view the shows stored in the local database")
     print("Input 3 to check for show updates.")
+    print("Input 4 to run the Update Checker script.")
     print("Else, enter 0 to quit the program.")
 
     valid_input = False
